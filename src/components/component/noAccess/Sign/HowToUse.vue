@@ -16,15 +16,14 @@
               alt="img"
             />
             <div class="how-card-content">
-              <div class="how-card-title">
-                {{card.id}}
-                {{ card.title }}
-              </div>
               <div class="how-card-text">
+                <div class="how-card-title">
+                  {{ card.title }}
+                </div>
                 {{ card.content }}
               </div>
-              <button @click="swap(card.id)">
-                <i style="color: red" class="fas fa-chevron-right"></i>
+              <button @click="swap(card.id)" class="how-btn-next">
+                <i class="fas fa-chevron-right"></i>
               </button>
             </div>
           </div>
@@ -36,12 +35,11 @@
 
 <script>
 export default {
-  mounted() {
-  },
+  mounted() {},
   data() {
     return {
       isActive: ``,
-      step: "0",
+      step: 0,
       cards: [
         {
           id: "7",
@@ -112,41 +110,85 @@ How many people can interpret this in English? There doesn't seem to be!`,
   },
   methods: {
     swap(i) {
-      let card = this.cards.pop()
+      console.log(this.step);
+
+      if (this.step == 7) {
+        for (let j = 0; j < 8; j++) {
+          let target = document.getElementById(`card${j}`);
+          target.style.animation = "";
+        }
+        this.step = 0;
+      }
+
+      let card = this.cards.pop();
       let thisCard = document.getElementById(`card${i}`);
-      thisCard.style.animation = "swap 900ms forwards"; 
+      thisCard.style.animation = "swap 800ms forwards";
       this.cards.unshift(card);
+      this.step++;
     },
   },
 };
 </script>
 
 <style>
-how-to-use-container {
-  background: white !important;
-}
 .how-to-use-container {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  color: blue;
-  --y: calc(937px + 70px);
+  color: #fff;
+  --y: calc(857px + 70px);
   height: var(--y);
   overflow: hidden;
+  margin-top: 70px;
 }
 
 .how-to-use-container,
 .how-to-use-container:before,
 .how-to-use-container::after {
-  margin: 0;
-  padding: 0;
+  /* margin: 0; */
+  /* padding: 0; */
   box-sizing: border-box;
+}
+
+.title-box{
+  margin-top : 20px;
+  font-size: 44px;
+}
+.how-card {
+  padding: 10px;
+  margin: 15px;
+  position: relative;
+}
+
+.how-btn-next {
+  position: absolute;
+  left: 95%;
+  bottom: 45%;
+  font-size: 44px;
+  color: white;
 }
 
 .how-card-img {
   width: 320px;
   height: 440px;
+  float: left;
+  margin-right: 50px;
+  border-radius: 25px;
+}
+
+.how-card-title {
+  margin-bottom: 30px;
+  text-align: left;
+  font-size: 32px;
+}
+
+.how-card-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding: 50px;
+  font-size: 22px;
 }
 
 .stack {
@@ -159,13 +201,13 @@ how-to-use-container {
 .how-card-content {
   text-align: center;
   display: inline;
-  float: right;
   margin: 15px 0px 0px 30px;
 }
 
 .card {
   padding: 15px;
-  background-color: white;
+  background: rgb(2,0,36);
+background: radial-gradient(circle, rgba(2,0,36,1) 2%, rgba(2,0,36,1) 2%, rgba(50,57,82,0.9051995798319328) 75%, rgba(33,72,79,1) 100%);
   width: 80%;
   min-height: 40%;
   position: absolute;
@@ -176,44 +218,37 @@ how-to-use-container {
   justify-content: center;
   align-items: center;
   border-radius: 2rem;
-  box-shadow: 0 5px 10px 0 rgba(26, 25, 58, 0.2),
-    0 15px 20px 0 rgba(219, 219, 177, 0.1);
+  box-shadow: 0 5px 25px 0 rgba(236, 237, 247, 0.2),
+    0 15px 25px 0 rgba(12, 124, 209, 0.1);
   transition: transform 200ms;
   z-index: 3;
 }
 
-.card:nth-last-child(n + 8) {
-  --y: calc(-50% - 270px);
-  transform: translate(-50%, var(--y)) scale(0.70);
-  box-shadow: 0 0 1px 1px #00000003;
-}
-.card:nth-last-child(7) {
-  --y: calc(-50% - 225px);
-  transform: translate(-50%, var(--y)) scale(0.75);
-  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.01);
-}
-.card:nth-last-child(6) {
-  --y: calc(-50% - 180px);
-  transform: translate(-50%, var(--y)) scale(0.80);
-  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.01);
+
+.card:nth-last-child(n + 6) {
+  --y: calc(-50% - 170px);
+  transform: translate(-50%, var(--y)) scale(0.8);
+  opacity: 0;
 }
 .card:nth-last-child(5) {
   --y: calc(-50% - 135px);
   transform: translate(-50%, var(--y)) scale(0.85);
-  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.01);
+  opacity: 0.1;
 }
 .card:nth-last-child(4) {
   --y: calc(-50% - 90px);
   transform: translate(-50%, var(--y)) scale(0.9);
-  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.01);
+  opacity: 0.3;
 }
 .card:nth-last-child(3) {
   --y: calc(-50% - 45px);
   transform: translate(-50%, var(--y)) scale(0.95);
+  opacity: 0.4;
 }
 .card:nth-last-child(2) {
   --y: calc(-50%);
   transform: translate(-50%, var(--y)) scale(1);
+  opacity: 0.9;
 }
 .card:nth-last-child(1) {
   --y: calc(-50% + 45px);
@@ -226,7 +261,7 @@ how-to-use-container {
     opacity: 1;
   }
   50% {
-    transform: translate(50%) scale(0.85) rotate(-5deg);
+    transform: translate(50%) scale(0.85) rotate(-15deg);
     animation-timing-function: ease-in;
     opacity: 0.4;
   }
