@@ -30,7 +30,6 @@ export default {
 </script>
 
 <style>
-
 .callModal {
   font-size: 50px;
   background: cornflowerblue;
@@ -39,15 +38,53 @@ export default {
 .createProject-bg-container {
   width: 100%;
   height: calc(100% - 70px);
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.36);
   position: absolute;
   color: #fff;
-}
-
-.createProject-white-container{
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
+.createProject-white-container {
+  width: 30vw;
+  border-radius: 15px;
+  background: #2C2F3B;
+  padding:25px;
+  box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.7);
+}
 
+.createProject-content{
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.createProject-title{
+  font-size: 32px;
+  margin-bottom: 35px;
+}
+
+.createProject-input{
+  background: #414556;
+  border: none;
+  outline: none;
+  margin-bottom: 15px;
+  font-size: 22px;
+  color:white;
+  border-radius: 5px;
+  padding: 5px 10px;
+  box-shadow: 0px 5px 35px rgba(0, 0, 0, 0.5);
+}
+
+.createProject-btn{
+  display: block;
+  background: #FF8906;
+  font-size: 24px;
+  color:white;
+  border-radius: 10px;
+  margin: 0 auto;
+  box-shadow: 0px 5px 35px rgba(0, 0, 0, 0.3);
+}
 </style>

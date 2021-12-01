@@ -2,6 +2,7 @@
   <div class="container">
     <nav>
       <Menu/>
+      <ProjectDetail/>
       <Home/>
     </nav>
     <router-view></router-view>
@@ -11,13 +12,15 @@
 <script>
 // import Compiler from './components/container/access/projectDetail/compiler/Compiler.vue'
 import Menu from './components/component/global/Menu.vue'
-import Home from './components/container/noAccess/Home.vue'
+import Home from '@/components/container/noAccess/Home.vue'
+import ProjectDetail from '@/components/container/access/projectDetail/ProjectDetail.vue'
 export default {
   name: 'App',
   components: {
     // Compiler,
     Menu,
-    Home
+    Home,
+    ProjectDetail
   }
 }
 </script>
