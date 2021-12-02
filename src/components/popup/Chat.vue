@@ -16,6 +16,7 @@
     <div class="chat-box" v-for="(chat, index) in chatData" :key="index">
       <div class="chat-header">
         <i @click="setMini(index)" class="fas fa-minus"></i>
+        <i class="far fa-square"></i>
       </div>
       <div class="chat-content">
         <ul>
@@ -25,22 +26,30 @@
             :key="index"
             :class="{ 'chat-myLine': line.id == userId }"
           >
+            <!-- 상대방의 채팅에만 사진,닉네임 표시 시작 -->
             <div v-if="userId != line.id" class="chat-userInfo">
               <img :src="require(`@/assets/${line.img}`)" alt="img" />
               {{ line.id }}
             </div>
+            <!-- 상대방의 채팅에만 사진,닉네임 표시 끝 -->
+
+            <!-- 상대방의 채팅은 회색 배경 시작 -->
             <div class="chat-info" v-if="line.id != userId">
               <span class="chat-text chat-friend">
                 {{ line.text }}
               </span>
               <span class="chat-date">{{ line.date }}</span>
             </div>
+            <!-- 상대방의 채팅은 회색 배경 끝 -->
+
+            <!-- 내 채팅은 주황색 배경 시작 -->
             <div class="chat-info" v-else>
               <span class="chat-date">{{ line.date }}</span>
               <span class="chat-text chat-my">
                 {{ line.text }}
               </span>
             </div>
+            <!-- 내 채팅은 주황색 배경 끝 -->
           </li>
         </ul>
       </div>
@@ -63,9 +72,7 @@ const today = moment();
 
 export default {
   updated() {
-    document
-      .querySelector(".chat-content>ul")
-      .lastElementChild.scrollIntoView(); // 메시지 포커스
+    this.focus(this.lastChatRoom);
   },
   data() {
     return {
@@ -98,20 +105,32 @@ export default {
             date: "16:31",
           },
         ],
+        [
+          {
+            id: "태희림",
+            img: "con3.jpg",
+            text: "롤체 ㄱㄱ",
+            date: "18:22",
+          },
+        ],
       ],
       inputText: "",
       userId: "zerochae",
       img: "con3.jpg",
+      lastChatRoom: "",
     };
   },
-  watch: {
-    chatData: {
-      handler(newVal, oldVal) {
-        console.log(oldVal);
-        console.log(newVal);
-      },
-    },
-  },
+  // watch: {
+  //   chatData: {
+  //     handler(newVal) {
+  //       console.log(`oldVal`);
+  //       console.log(this.chatData);
+  //       console.log(`newVal`);
+  //       console.log(newVal);
+  //     },
+  //     deep: true,
+  //   },
+  // },
   methods: {
     setText(e) {
       this.inputText = e.target.value;
@@ -129,8 +148,17 @@ export default {
       }
       document.querySelector(`#chat-input-${index}`).value = "";
       this.inputText = "";
+      this.lastChatRoom = index;
     },
-    setMini() {},
+    focus(index) {
+      let chatRoom = document.querySelectorAll(".chat-content>ul")[index];
+      chatRoom.lastElementChild.scrollIntoView();
+    },
+    setMini(index) {
+      let chatRoom = document.querySelectorAll(".chat-box")[index];
+
+      chatRoom.className = " chat-mini";
+    },
     test(index) {
       console.log(index);
     },
@@ -188,13 +216,14 @@ export default {
   padding: 15px;
   font-size: 12px;
   overflow: auto;
+  width: 100%;
 }
 
 .chat-content ul {
   margin-top: 6px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  margin-bottom: 15px;
 }
 
 .chat-line {
@@ -207,12 +236,13 @@ export default {
   display: flex;
   flex-direction: column;
   margin: 5px;
+  align-items: center;
 }
 
 .chat-userInfo img {
-  margin: 0 0 5px 2px;
   border-radius: 50%;
   width: 20px;
+  margin-bottom: 7px;
 }
 
 .chat-info {
@@ -329,5 +359,14 @@ export default {
   border-style: none;
   border-color: initial;
   border-image: initial; */
+}
+
+.chat-mini {
+  overflow: hidden;
+  width: 100px;
+  height: 18px;
+  bottom: 0;
+  position: relative;
+  align-self: flex-end;
 }
 </style>
