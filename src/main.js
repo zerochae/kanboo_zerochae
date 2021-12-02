@@ -19,7 +19,7 @@ VueMarkdownEditor.use(vuepressTheme, {
   Prism
 })
 
-axios.defaults.baseURL = "http://localhost:8088"
+axios.defaults.baseURL = "http://localhost:8080"
 
 const app = createApp(App)
 app.config.globalProperties.axios = axios

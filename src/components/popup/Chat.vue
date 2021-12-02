@@ -15,20 +15,24 @@
   <div class="chat-container">
     <div class="chat-box" v-for="(chat, index) in chatData" :key="index">
       <div class="chat-header">
-        <i @click="setMini(index)" class="fas fa-minus"></i>
-        <i class="far fa-square"></i>
+        <i
+          v-if="chat.isMini == false"
+          @click="setMini(index)"
+          class="fas fa-minus"
+        ></i>
+        <i v-else @click="setMax(index)" class="far fa-square"></i>
       </div>
       <div class="chat-content">
         <ul>
           <li
             class="chat-line"
-            v-for="(line, index) in chat"
+            v-for="(line, index) in chat.content"
             :key="index"
             :class="{ 'chat-myLine': line.id == userId }"
           >
             <!-- 상대방의 채팅에만 사진,닉네임 표시 시작 -->
             <div v-if="userId != line.id" class="chat-userInfo">
-              <img :src="require(`@/assets/${line.img}`)" alt="img" />
+              <img :src="require(`@/assets/${chat.img}`)" alt="img" />
               {{ line.id }}
             </div>
             <!-- 상대방의 채팅에만 사진,닉네임 표시 끝 -->
@@ -67,53 +71,17 @@
 </template>
 
 <script>
+import chatData from "@/assets/chatData.js";
 const moment = require("moment");
 const today = moment();
 
 export default {
   updated() {
-    this.focus(this.lastChatRoom);
+    if (!this.chatData[this.lastChatRoom].isMini) this.focus(this.lastChatRoom);
   },
   data() {
     return {
-      chatData: [
-        [
-          {
-            id: "kade",
-            img: "con1.jpg",
-            text: "안대근입니다",
-            date: "16:30",
-          },
-          {
-            id: "zerochae",
-            img: "con3.jpg",
-            text: "머해 ㅋㅋ",
-            date: "16:31",
-          },
-        ],
-        [
-          {
-            id: "윤뷰원",
-            img: "con1.jpg",
-            text: "윤주원입니다",
-            date: "16:30",
-          },
-          {
-            id: "zerochae",
-            img: "con3.jpg",
-            text: "머해 ㅋㅋ",
-            date: "16:31",
-          },
-        ],
-        [
-          {
-            id: "태희림",
-            img: "con3.jpg",
-            text: "롤체 ㄱㄱ",
-            date: "18:22",
-          },
-        ],
-      ],
+      chatData: chatData,
       inputText: "",
       userId: "zerochae",
       img: "con3.jpg",
@@ -135,13 +103,15 @@ export default {
     setText(e) {
       this.inputText = e.target.value;
     },
+    // 여기다가 메시지 받기 기능 추가 해야함!!!!!!!!!!!!!!!!!!!!
+    getMessage(){
+    },
     sendMessage(index) {
       let date = today.format("HH:MM");
 
       if (this.inputText !== "") {
-        this.chatData[index].push({
+        this.chatData[index].content.push({
           id: this.userId,
-          img: this.img,
           text: this.inputText,
           date: date,
         });
@@ -151,22 +121,26 @@ export default {
       this.lastChatRoom = index;
     },
     focus(index) {
+      console.log("foucs into " + index);
       let chatRoom = document.querySelectorAll(".chat-content>ul")[index];
       chatRoom.lastElementChild.scrollIntoView();
     },
     setMini(index) {
+      this.chatData[index].isMini = true;
       let chatRoom = document.querySelectorAll(".chat-box")[index];
-      chatRoom.className = " chat-mini";
+      chatRoom.className += " chat-mini";
     },
-    test(index) {
-      console.log(index);
+    setMax(index) {
+      this.chatData[index].isMini = false;
+      let chatRoom = document.querySelectorAll(".chat-box")[index];
+      chatRoom.className = "chat-box";
     },
+    // 채팅 메시지 받기 테스트
     chatTest() {
       let date = today.format("HH:MM");
       console.log();
-      this.chatData[0].push({
+      this.chatData[0].content.push({
         id: "kade",
-        img: "con1.jpg",
         text: "머하냐~",
         date: date,
       });
@@ -326,17 +300,17 @@ export default {
   color: white;
   border: none;
   outline: none;
-  width: 80%;
+  width: 100%;
 }
 
 .chat-inputBox button {
   background: #ff8906;
   border-radius: 10px;
   font-size: 12px;
-  width: 40px;
+  width: 50px;
   height: 20px;
   color: white;
-  -webkit-filter: drop-shadow(0px 2px 2px rgba(10, 10, 10, 0.8));
+  -webkit-filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.1));
   margin-right: 10px;
 }
 
@@ -367,5 +341,9 @@ export default {
   bottom: 0;
   position: relative;
   align-self: flex-end;
+}
+
+.chat-mini i{
+  font-size : 12px;
 }
 </style>
