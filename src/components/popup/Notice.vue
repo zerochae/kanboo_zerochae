@@ -1,5 +1,4 @@
 <template>
-  <div class="notice-container">
     <button
       style="
         position: absolute;
@@ -13,6 +12,7 @@
     >
       알람 테스트
     </button>
+  <div class="notice-container">
     <div
       :id="`notice-${index}`"
       class="notice-box"
@@ -49,14 +49,14 @@ export default {
   },
   methods: {
     closeNotice(index) {
-      document.querySelector(".notice-box").style.display = "none";
-      this.messages[index].check = "Y";
+      console.log(index)
+      console.log(this.messages)
+      document.querySelector(`#notice-${index}`).style.display = "none";
     },
     noticeTest() {
       this.messages.push({
         user: "zerochae",
         content: "님이 로그인하였습니다",
-        check: "Y",
       });
     },
   },
@@ -68,8 +68,9 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  background: blue;
- 
+  position: absolute;
+  z-index: 10;
+  right: 0;
 }
 .notice-box {
   margin-bottom: 10px;
@@ -77,14 +78,16 @@ export default {
   height: 60px;
   right: 0;
   background: #414556;
-  display: inline;
+  display: flex;
+  align-items: center;
   position: relative;
   flex-direction: column;
   justify-content: flex-end;
   border-radius: 5px;
   transform: translate(-100%);
   animation: slide 4s linear;
-  box-shadow: 0 5px 25px rgba(255, 255, 255, 0.2);
+  box-shadow: 3px 5px 16px rgba(255, 255, 255, 0.2) inset;
+  overflow: hidden;
 }
 
 .notice-text {
@@ -97,11 +100,14 @@ export default {
   right: 2%;
 }
 
+.notice-box button{
+  color:white
+}
+
 .notice-bar {
   height: 7px;
   width: 278px;
   background: #fff;
-  border-radius: 5px;
   position: absolute;
   bottom: 0;
 }
@@ -110,9 +116,8 @@ export default {
   background: #3f80a9;
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  border-radius: 5px;
   animation: progress 3s linear;
+  box-shadow: 2px 2px 3px rgba(255, 255, 255, 0.3) inset;
 }
 
 @keyframes progress {
@@ -127,16 +132,14 @@ export default {
 @keyframes slide {
   0% {
     transform: translate(100%);
-    opacity: 0;
   }
   9%,
-  91% {
+  80% {
     transform: translate(0%);
-    opacity: 0.8;
   }
+  90%,
   100% {
     transform: translate(100%);
-    opacity: 0;
   }
 }
 </style>
