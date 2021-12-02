@@ -156,7 +156,6 @@ export default {
     },
     setMini(index) {
       let chatRoom = document.querySelectorAll(".chat-box")[index];
-
       chatRoom.className = " chat-mini";
     },
     test(index) {
