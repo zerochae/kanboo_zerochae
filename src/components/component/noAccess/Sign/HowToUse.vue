@@ -112,17 +112,14 @@ How many people can interpret this in English? There doesn't seem to be!`,
     swap(i) {
       console.log(this.step);
 
-      if (this.step == 7) {
-        for (let j = 0; j < 8; j++) {
-          let target = document.getElementById(`card${j}`);
-          target.style.animation = "";
-        }
-        this.step = 0;
+      for (let j = 0; j < 8; j++) {
+        let target = document.getElementById(`card${j}`);
+        target.style.animation = "";
       }
 
       let card = this.cards.pop();
       let thisCard = document.getElementById(`card${i}`);
-      thisCard.style.animation = "swap 800ms forwards";
+      thisCard.style.animation = "swap 1200ms forwards";
       this.cards.unshift(card);
       this.step++;
     },
@@ -151,8 +148,8 @@ How many people can interpret this in English? There doesn't seem to be!`,
   box-sizing: border-box;
 }
 
-.title-box{
-  margin-top : 20px;
+.title-box {
+  margin-top: 20px;
   font-size: 44px;
 }
 .how-card {
@@ -206,8 +203,14 @@ How many people can interpret this in English? There doesn't seem to be!`,
 
 .card {
   padding: 15px;
-  background: rgb(2,0,36);
-background: radial-gradient(circle, rgba(2,0,36,1) 2%, rgba(2,0,36,1) 2%, rgba(50,57,82,0.9051995798319328) 75%, rgba(33,72,79,1) 100%);
+  background: rgb(44, 47, 59);
+  background: linear-gradient(
+    60deg,
+    rgba(44, 47, 59, 1) 8%,
+    rgba(69, 72, 87, 0.9640231092436975) 42%,
+    rgba(116, 120, 138, 1) 81%
+  );
+
   width: 80%;
   min-height: 40%;
   position: absolute;
@@ -220,10 +223,9 @@ background: radial-gradient(circle, rgba(2,0,36,1) 2%, rgba(2,0,36,1) 2%, rgba(5
   border-radius: 2rem;
   box-shadow: 0 5px 25px 0 rgba(236, 237, 247, 0.2),
     0 15px 25px 0 rgba(12, 124, 209, 0.1);
-  transition: transform 200ms;
+  transition: transform 2000ms;
   z-index: 3;
 }
-
 
 .card:nth-last-child(n + 6) {
   --y: calc(-50% - 170px);
@@ -253,6 +255,7 @@ background: radial-gradient(circle, rgba(2,0,36,1) 2%, rgba(2,0,36,1) 2%, rgba(5
 .card:nth-last-child(1) {
   --y: calc(-50% + 45px);
   transform: translate(-50%, var(--y)) scale(1.05);
+  opacity: 1;
 }
 
 @keyframes swap {

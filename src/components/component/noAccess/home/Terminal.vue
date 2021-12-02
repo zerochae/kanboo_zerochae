@@ -38,7 +38,7 @@ export default {
   name: "Terminal",
   updated() {
     document.getElementById("inputBox").focus();
-    document.getElementById("inputBox").value = '';
+    document.getElementById("inputBox").value = "";
   },
   data() {
     return {
@@ -66,162 +66,57 @@ export default {
     },
     enter() {
       let data = this.inputText;
-      /*
-      로그인 프로세스 
-      */
 
       if (this.isLogin) {
-        if (this.step1) {
-          this.form(data, "PW");
-          this.loginAccess(this.loginInfo);
-          return;
-        }
-
-        this.form(data, "ID");
-        this.addLine(`(login console) > `, `Enter your PW`, `com`);
-        this.inputType = "password";
-        this.step1 = true;
+        this.loginMode(data);
+        return;
+      } else if (this.isSign) {
+        this.signMode(data);
+        return;
+      } else if (this.isFind) {
+        this.findMode(data);
         return;
       }
 
-      /*
-      회원가입 프로세스
-      */
-
-      if (this.isSign) {
-        if (this.step2) {
-          this.form(data, "nickName");
-          this.signAccess(this.signInfo);
-          return;
-        }
-
-        if (this.step1) {
-          this.form(data, "PW");
-          this.addLine(`(sign console) > `, `Enter your nickName`, `com`);
-          this.step2 = true;
-          this.inputType = "text";
-          return;
-        }
-        this.form(data, "ID");
-        this.addLine(`(sign console) > `, `Enter your PW`, `com`);
-        this.inputType = "password";
-        this.step1 = true;
-        return;
-      }
-
-      /*
-      Find 프로세스
-      */
-
-      if (this.isFind) {
-        if (this.step3) {
-          this.addLine(`(find console) > `, data, "");
-          this.findInfo.userNickName = data;
-          this.getPW(this.findInfo);
-          this.baseMode();
-          return;
-        }
-
-        if (this.step2) {
-          this.addLine(`(find console) > `, data, "");
-          this.findInfo.userId = data;
-          this.addLine(`(find console) > `, `Enter your NickName`, `com`);
-          this.inputType = "text";
-          this.step3 = true;
-          return;
-        }
-
-        if (this.step1) {
-          this.addLine(`(find console) > `, data, "");
-          this.findInfo.userNickName = data;
-          this.getID(this.findInfo);
-          this.baseMode();
-          return;
-        }
-
-        if (data === "ID") {
-          this.addLine(`(find console) > `, data, "");
-          this.addLine(`(find console) > `, `Enter your NickName`, `com`);
-          this.step1 = true;
-          return;
-        } else {
-          this.addLine(`(find console) > `, data, "");
-          //비번찾기
-          this.addLine(`(find console) > `, `Enter your ID`, `com`);
-          this.step2 = true;
-          return;
-        }
-      }
-
-      if (data === "login") {
-        this.rootText = `Kanboo bash(login console) > `;
-        this.addLine(`(base console) > `, data, "");
-        this.isLogin = true;
-        this.addLine(`(login console) > `, `Enter your ID`, `com`);
-      } else if (data === "sign") {
-        this.rootText = `Kanboo bash(sign console) > `;
-        this.addLine(`(base console) > `, data, "");
-        this.isSign = true;
-        this.addLine(`(sign console) > `, `Enter your ID`, `com`);
-      } else if (data === "find") {
-        this.rootText = `Kanboo bash(find console) > `;
-        this.addLine(`(base console) > `, data, "");
-        this.isFind = true;
-        this.addLine(`(find console) > `, `ID or PW ?`, `com`);
-      } else {
-        this.nothing(data);
+      switch (data) {
+        case "sign":
+          this.signMode(data);
+          break;
+        case "login":
+          this.loginMode(data);
+          break;
+        case "find":
+          this.findMode(data);
+          break;
+        default:
+          this.nothing(data);
+          break;
       }
     },
     form(data, position) {
-      if (this.isLogin == true) {
-        if (position === "PW") {
-          let str = "";
-          for (let i = 0; i < data.length; i++) {
-            str += "•";
-          }
-
-          this.addLine(`(login console) > `, str, "");
-        } else {
+      switch (position) {
+        case "ID":
           this.addLine(`(login console) > `, data, "");
-        }
-      } else if (this.isSign == true) {
-        if (position === "PW") {
-          let str = "";
+          this.loginInfo.userId = data;
+          break;
+        case "PW":
+          var str = "";
           for (let i = 0; i < data.length; i++) {
             str += "•";
           }
-
           this.addLine(`(sign console) > `, str, "");
-        } else {
-          this.addLine(`(sign console) > `, data, "");
-        }
-      }
-
-      if (this.isLogin) {
-        if (position === "ID") {
-          // this.loginInfo.push({userId : data});
-          this.loginInfo.userId = data;
-        } else if (position === "PW") {
-          // this.loginInfo.push({userPw : data});
           this.loginInfo.userPw = data;
-        }
-      } else if (this.isSign) {
-        if (position === "ID") {
-          // this.signInfo.push({userId : data});
-          this.signInfo.userId = data;
-        } else if (position === "PW") {
-          // this.signInfo.push({userPw : data});
-          this.signInfo.userPw = data;
-        } else if (position === "nickName") {
-          // this.signInfo.push({userNickName : data})
+          break;
+        case "nickName":
+          this.addLine(`(login console) > `, data, "");
           this.signInfo.userNickName = data;
-        }
+          break;
       }
     },
     nothing(data) {
-      console.log(data)
       this.addLine(`(base console) > `, data, "");
     },
+
     loginAccess(loginInfo) {
       this.addLine(`(login console) > `, `Loading...`, "com");
       // axios 통신 ㄱㄱ
@@ -234,6 +129,7 @@ export default {
       }
       this.baseMode();
     },
+
     signAccess(signInfo) {
       this.addLine(`(sign console) > `, `Loading`, "com");
       console.log(signInfo);
@@ -245,18 +141,21 @@ export default {
       }
       this.baseMode();
     },
+
     getID(data) {
       console.log(data);
       // 아이디 찾는 로직
       let id = "zerochae";
       this.addLine(`(find console) > `, `니 아이디는 ${id} `, "com");
     },
+
     getPW(data) {
       console.log(data);
       // 비번 찾는 로직
       let pw = "1234";
       this.addLine(`(find console) > `, `니 비번 ${pw} `, "com");
     },
+
     addLine(mode, enter, classdata) {
       this.consoleText.push(`Kanboo bash`);
       this.modeText.push(mode);
@@ -264,6 +163,7 @@ export default {
       this.classData.push(classdata);
       this.inputText = "";
     },
+
     baseMode() {
       this.isLogin = false;
       this.isSign = false;
@@ -271,7 +171,90 @@ export default {
       this.step1 = false;
       this.step2 = false;
       this.inputType = "text";
-      this.rootText = `Kanboo bash(base console) >`;
+      this.rootText = `Kanboo bash(base console) > `;
+    },
+
+    loginMode(data) {
+      if (this.isLogin) {
+        if (this.step1) {
+          this.form(data, "PW");
+          this.loginAccess(this.loginInfo);
+          return;
+        }
+        this.form(data, "ID");
+        this.addLine(`(login console) > `, `Enter your PW`, `com`);
+        this.inputType = "password";
+        this.step1 = true;
+        return;
+      } else {
+        this.rootText = `Kanboo bash(login console) > `;
+        this.addLine(`(base console) > `, data, "");
+        this.isLogin = true;
+        this.addLine(`(login console) > `, `Enter your ID`, `com`);
+        return;
+      }
+    },
+
+    signMode(data) {
+      if (this.isSign) {
+        if (this.step2) {
+          this.form(data, "nickName");
+          this.signAccess(this.signInfo);
+          return;
+        } else if (this.step1) {
+          this.form(data, "PW");
+          this.addLine(`(sign console) > `, `Enter your nickName`, `com`);
+          this.step2 = true;
+          this.inputType = "text";
+          return;
+        }
+        this.form(data, "ID");
+        this.addLine(`(sign console) > `, `Enter your PW`, `com`);
+        this.inputType = "password";
+        this.step1 = true;
+        return;
+      } else {
+        this.rootText = `Kanboo bash(sign console) > `;
+        this.addLine(`(base console) > `, data, "");
+        this.isSign = true;
+        this.addLine(`(sign console) > `, `Enter your ID`, `com`);
+        return;
+      }
+    },
+    findMode(data) {
+      if (this.isFind) {
+        if (this.step2) {
+          this.addLine(`(find console) > `, data, "");
+          this.findInfo.userId = data;
+          this.getPW(this.findInfo);
+          this.baseMode();
+          return;
+        } else if (this.step1) {
+          this.addLine(`(find console) > `, data, "");
+          this.findInfo.userNickName = data;
+          this.getID(this.findInfo);
+          this.baseMode();
+          return;
+        }
+
+        switch (data) {
+          case "ID":
+            this.addLine(`(find console) > `, data, "");
+            this.addLine(`(find console) > `, `Enter your ToKen`, `com`);
+            this.step1 = true;
+            break;
+          case "PW":
+            this.addLine(`(find console) > `, data, "");
+            this.addLine(`(find console) > `, `Enter your ToKen`, `com`);
+            this.step2 = true;
+            break;
+        }
+      } else {
+        this.rootText = `Kanboo bash(find console) > `;
+        this.addLine(`(base console) > `, data, "");
+        this.isFind = true;
+        this.addLine(`(find console) > `, `ID or PW ?`, `com`);
+      }
     },
   },
 };
@@ -286,13 +269,13 @@ export default {
   font-style: normal;
 }
 
-*{
+* {
   font-family: "NeoDunggeunmo";
   font-size: 22px;
 }
 
 .terminal-container {
-  height: 100vh;
+  height: calc(100vh - 70px);
 }
 
 .console {

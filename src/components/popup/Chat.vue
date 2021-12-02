@@ -13,7 +13,12 @@
     채팅 테스트
   </button>
   <div class="chat-container">
-    <div class="chat-box" v-for="(chat, index) in chatData" :key="index">
+    <div
+      class="chat-box"
+      v-for="(chat, index) in chatData"
+      :key="index"
+      :id="`chatRoom-${index}`"
+    >
       <div class="chat-header">
         <i
           v-if="chat.isMini == false"
@@ -32,7 +37,7 @@
           >
             <!-- 상대방의 채팅에만 사진,닉네임 표시 시작 -->
             <div v-if="userId != line.id" class="chat-userInfo">
-              <img :src="require(`@/assets/${chat.img}`)" alt="img" />
+              <img :src="require(`@/assets/${line.img}`)" alt="img" />
               {{ line.id }}
             </div>
             <!-- 상대방의 채팅에만 사진,닉네임 표시 끝 -->
@@ -77,7 +82,7 @@ const today = moment();
 
 export default {
   updated() {
-    if (!this.chatData[this.lastChatRoom].isMini) this.focus(this.lastChatRoom);
+    this.focus(this.lastChatRoom);
   },
   data() {
     return {
@@ -88,24 +93,12 @@ export default {
       lastChatRoom: "",
     };
   },
-  // watch: {
-  //   chatData: {
-  //     handler(newVal) {
-  //       console.log(`oldVal`);
-  //       console.log(this.chatData);
-  //       console.log(`newVal`);
-  //       console.log(newVal);
-  //     },
-  //     deep: true,
-  //   },
-  // },
   methods: {
     setText(e) {
       this.inputText = e.target.value;
     },
     // 여기다가 메시지 받기 기능 추가 해야함!!!!!!!!!!!!!!!!!!!!
-    getMessage(){
-    },
+    getMessage() {},
     sendMessage(index) {
       let date = today.format("HH:MM");
 
@@ -122,26 +115,28 @@ export default {
     },
     focus(index) {
       console.log("foucs into " + index);
-      let chatRoom = document.querySelectorAll(".chat-content>ul")[index];
+      let chatRoom = document.querySelector('#chatRoom-0>.chat-content>ul')
       chatRoom.lastElementChild.scrollIntoView();
     },
     setMini(index) {
+      let chatRoom = document.querySelector(`#chatRoom-${index}`);
+      chatRoom.className = "chat-box chat-mini"
       this.chatData[index].isMini = true;
-      let chatRoom = document.querySelectorAll(".chat-box")[index];
-      chatRoom.className += " chat-mini";
+      console.log(this.chatData)
     },
     setMax(index) {
-      this.chatData[index].isMini = false;
-      let chatRoom = document.querySelectorAll(".chat-box")[index];
+      let chatRoom = document.querySelector(`#chatRoom-${index}`);
       chatRoom.className = "chat-box";
+      this.chatData[index].isMini = false;
     },
     // 채팅 메시지 받기 테스트
     chatTest() {
       let date = today.format("HH:MM");
-      console.log();
+      console.log("ss");
       this.chatData[0].content.push({
         id: "kade",
         text: "머하냐~",
+        img: "con1.jpg",
         date: date,
       });
     },
@@ -156,6 +151,7 @@ export default {
   bottom: 0;
   display: flex;
   overflow: hidden;
+  z-index: 1;
 }
 .chat-box {
   width: 20vw;
@@ -343,7 +339,7 @@ export default {
   align-self: flex-end;
 }
 
-.chat-mini i{
-  font-size : 12px;
+.chat-mini i {
+  font-size: 12px;
 }
 </style>

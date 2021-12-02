@@ -1,20 +1,20 @@
 <template>
   <div>
-    <!-- <Projects/>
+    <!-- <Projects/> -->
     <VideoView/>
-    <HowToUse/> -->
+    <HowToUse/>
   </div>
 </template>
 
 <script>
-// import HowToUse from '@/components/component/noAccess/Sign/HowToUse.vue';
-// import VideoView from '@/components/component/noAccess/Sign/VideoView.vue';
+import HowToUse from '@/components/component/noAccess/Sign/HowToUse.vue';
+import VideoView from '@/components/component/noAccess/Sign/VideoView.vue';
 // import Projects from '@/components/container/access/Projects.vue'
 
 export default {
   components:{
-    // VideoView,
-    // HowToUse,
+    VideoView,
+    HowToUse,
     // Projects
   }
 };

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="sign-container">
     <Terminal />
   </div>
 </template>
@@ -8,6 +8,7 @@
 import Terminal from "@/components/component/noAccess/home/Terminal.vue";
 
 export default {
+  name: "Sign",
   components: {
     Terminal,
   },
@@ -15,11 +16,13 @@ export default {
 </script>
 
 <style scoped>
-@font-face {
-  font-family: "NeoDunggeunmo";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.3/NeoDunggeunmo.woff")
-    format("woff");
-  font-weight: normal;
-  font-style: normal;
+
+.sign-container{
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 70px);
+  background: #16161a;
+  overflow: hidden;
+  color: white;
 }
 </style>

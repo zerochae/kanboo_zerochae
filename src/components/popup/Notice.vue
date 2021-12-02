@@ -65,12 +65,12 @@ export default {
 
 <style>
 .notice-container {
+  position: absolute;
+  right: 0;
+  top:0;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  position: absolute;
   z-index: 10;
-  right: 0;
 }
 .notice-box {
   margin-bottom: 10px;
