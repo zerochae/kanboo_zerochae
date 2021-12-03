@@ -115,14 +115,14 @@ export default {
     },
     focus(index) {
       console.log("foucs into " + index);
-      let chatRoom = document.querySelector('#chatRoom-0>.chat-content>ul')
+      let chatRoom = document.querySelector("#chatRoom-0>.chat-content>ul");
       chatRoom.lastElementChild.scrollIntoView();
     },
     setMini(index) {
       let chatRoom = document.querySelector(`#chatRoom-${index}`);
-      chatRoom.className = "chat-box chat-mini"
+      chatRoom.className = "chat-box chat-mini";
       this.chatData[index].isMini = true;
-      console.log(this.chatData)
+      console.log(this.chatData);
     },
     setMax(index) {
       let chatRoom = document.querySelector(`#chatRoom-${index}`);
