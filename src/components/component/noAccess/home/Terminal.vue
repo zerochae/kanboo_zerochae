@@ -14,7 +14,6 @@
         <input
           :type="inputType"
           @keyup.enter="enter"
-          @input="reg"
           id="inputBox"
           v-model="inputText"
           :class="{ 'text-color-red': signReg }"
@@ -30,32 +29,7 @@ export default {
   name: "Terminal",
   updated() {
     this.focus();
-    this.$nextTick(function () {
-      if (
-        this.inputData.length >= 1 &&
-        (this.inputData[0] === "sign" || this.inputData[0] === "login")
-      ) {
-        switch (this.inputData.length) {
-          case 5:
-            this.stringReg = false;
-            return;
-          case 6:
-            if (this.phoneReg.test(this.inputText)) {
-              this.signReg = false;
-            } else {
-              this.signReg = true;
-            }
-            return;
-          default:
-            if (this.stringReg.test(this.inputText)) {
-              this.signReg = false;
-            } else {
-              this.signReg = true;
-            }
-            return;
-        }
-      }
-    });
+    console.log(this.inputData);
   },
   data() {
     return {
@@ -68,15 +42,16 @@ export default {
       inputData: [],
       inputText: "",
       signHelp: signHelp,
-      signReg: false,
+      signReg: "",
       stringReg: /^[a-z0-9]{6,20}$/,
       phoneReg: /(?:\d{3}|\d{4})-\d{4}$/,
     };
   },
+  watch: {
+    inputText: "regex",
+  },
   methods: {
     enter() {
-      console.log(this.inputData);
-
       let data = this.inputText.toLowerCase();
       let originalData = this.inputText;
 
@@ -122,7 +97,8 @@ export default {
     baseMode() {
       this.inputType = "text";
       this.rootText = `Kanboo bash(base console) > `;
-      // this.inputData.length = 0;
+      this.signReg = false;
+      this.inputData.length = 0;
     },
 
     loginMode(data, originalData) {
@@ -209,7 +185,7 @@ export default {
           this.form(data, "phone");
           this.inputData.push(data);
           this.signAccess();
-          return;
+          break;
       }
     },
     findMode(data, originalData) {
@@ -360,7 +336,6 @@ export default {
           phone: this.inputData[6],
         },
       };
-      this.baseMode();
 
       // axios 통신
 
@@ -370,6 +345,9 @@ export default {
         this.addLine(`(sign console) > `, `fail`, `com`);
         this.addLine(`(base console) > `, `Choose Menu`, `com`);
       }
+
+      this.baseMode();
+      return this.enter();
     },
 
     findUserInfo() {
@@ -398,6 +376,24 @@ export default {
     focus() {
       document.getElementById("inputBox").focus();
       document.getElementById("inputBox").scrollIntoView();
+    },
+    regex() {
+      if (
+        this.inputData.length > 0 &&
+        (this.inputData[0] === "sign" || this.inputData[0] === "login")
+      ) {
+        switch (this.inputData.length) {
+          case 5:
+            this.stringReg = false;
+            break;
+          case 6:
+            this.signReg = !this.phoneReg.test(this.inputText);
+            break;
+          default:
+            this.signReg = !this.stringReg.test(this.inputText);
+            break;
+        }
+      }
     },
   },
 };
