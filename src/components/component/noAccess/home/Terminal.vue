@@ -16,9 +16,8 @@
           @input="reg"
           id="inputBox"
           v-model="inputText"
-          :class="{ 'input-reg': inputColor }"
+          :class="{ 'input-reg': signReg }"
         />
-        {{ test }}
       </div>
     </div>
   </div>
@@ -35,11 +34,14 @@ user text
 - find
 */
 
+import signHelp from "@/assets/signHelp.js";
 export default {
   name: "Terminal",
+  mounted() {},
   updated() {
     document.getElementById("inputBox").focus();
     console.log(this.inputData);
+    console.log(this.signReg);
   },
   data() {
     return {
@@ -51,27 +53,23 @@ export default {
       inputType: "text",
       inputData: [],
       inputText: "",
-      test: "",
-      stringReg: /[a-z0-9]{6,20}$/g,
-      inputColor: true,
+      signHelp: signHelp,
+      signReg: false,
+      stringReg: /^[a-z0-9]{6,20}$/,
       phoneReg: /(?:\d{3}|\d{4})-\d{4}$/,
     };
   },
-  watch:{
-    inputText:function(newVal){
+  watch: {
+    inputText: function (newVal) {
       if (this.inputData.length > 0 && this.inputData[0] === "sign")
-        this.test = this.stringReg.test(newVal);
-    }
-    
+        if (this.stringReg.test(newVal)) {
+          this.signReg = false;
+        } else {
+          this.signReg = true;
+        }
+    },
   },
   methods: {
-    reg() {
-      // if (!this.stringReg.test(this.inputText)) {
-      //   this.inputColor = "red";
-      // } else {
-      //   this.inputColor = "white";
-      // }
-    },
     enter() {
       let data = this.inputText.toLowerCase();
       let originalData = this.inputText;
@@ -110,10 +108,10 @@ export default {
             break;
         }
       }
-      this.a = "";
     },
     baseMode() {
       this.inputData = [];
+      this.signReg = false;
       this.inputType = "text";
       this.rootText = `Kanboo bash(base console) > `;
     },
@@ -143,34 +141,46 @@ export default {
     },
 
     signMode(data, originalData) {
+      let signHelp = this.signHelp.en;
+
+      if (this.signReg) return;
+
       switch (this.inputData.length) {
         case 0:
           this.rootText = `Kanboo bash(sign console) > `;
           this.inputData.push(data);
           this.addLine(`(base console) > `, originalData, "");
-          this.addLine(`(sign console) > `, `Enter your ID`, `com`);
+          this.addLine(`(sign console) > `, `${signHelp[0]}`, `com`);
           return;
         case 1:
           // 아이디 입력
           this.form(data, "ID");
+          this.addLine(`(sign console) > `, `${signHelp[1]}`, `com`);
           this.inputData.push(data);
-          this.addLine(`(sign console) > `, `Enter your PW`, `com`);
           this.inputType = "password";
           return;
         case 2:
           // 비번 입력
           this.form(data, "PW");
           this.inputData.push(data);
-          this.addLine(`(sign console) > `, `Enter your nickName`, `com`);
-          this.inputType = "text";
+          this.addLine(`(sign console) > `, `${signHelp[2]}`, `com`);
+          this.inputType = "password";
           return;
         case 3:
+          // 비번 확인 입력
+          this.form(data, "PWCheck");
+          this.addLine(`(sign console) > `, `${signHelp[3]}`, `com`);
+          if (this.inputData[2] !== data) return;
+          this.inputData.push(data);
+          this.inputType = "text";
+          return;
+        case 4:
           // 닉네임 입력
           this.form(data, "nickName");
           this.inputData.push(data);
-          this.addLine(`(sign console) > `, `Enter your phone`, `com`);
+          this.addLine(`(sign console) > `, `${signHelp[4]}`, `com`);
           return;
-        case 4:
+        case 5:
           // 저나번호 입력
           this.form(data, "phone");
           this.inputData.push(data);
@@ -196,17 +206,16 @@ export default {
     },
     form(data, position) {
       switch (position) {
-        case "ID":
-        case "nickName":
-        case "phone":
-          this.addLine(`(${this.inputData[0]} console) > `, data, "");
-          break;
         case "PW":
+        case "PWCheck":
           this.addLine(
             `(${this.inputData[0]} console) > `,
             this.printPW(data),
             ""
           );
+          break;
+        default:
+          this.addLine(`(${this.inputData[0]} console) > `, data, "");
           break;
       }
     },
@@ -217,33 +226,49 @@ export default {
     goBack(data) {
       // 뒤로 가기
       this.addLine(`(${this.inputData[0]} console) > `, data, "");
-      this.inputData.pop();
-      switch (this.inputData.length) {
-        case 0:
-          this.baseMode();
-          return;
-        case 1:
-          this.addLine(
-            `(${this.inputData[0]} console) > `,
-            `Enter your ID`,
-            `com`
-          );
-          return;
-        case 2:
-          this.addLine(
-            `(${this.inputData[0]} console) > `,
-            `Enter your PW`,
-            `com`
-          );
-          return;
-        case 3:
-          this.addLine(
-            `(${this.inputData[0]} console) > `,
-            `Enter your nickName`,
-            `com`
-          );
-          return;
+
+      if (this.inputData.length === 1) {
+        return this.baseMode();
+      } else {
+        this.inputData.pop();
+        switch (this.inputData[0]) {
+          case "login":
+            this.loginMode(data);
+            break;
+          case "sign":
+            this.signMode(data);
+            break;
+          case "find":
+            this.findMode(data);
+            break;
+        }
       }
+      // switch (this.inputData.length) {
+      //   case 0:
+      //     this.baseMode();
+      //     return;
+      //   case 1:
+      //     this.addLine(
+      //       `(${this.inputData[0]} console) > `,
+      //       `Enter your ID`,
+      //       `com`
+      //     );
+      //     return;
+      //   case 2:
+      //     this.addLine(
+      //       `(${this.inputData[0]} console) > `,
+      //       `Enter your PW`,
+      //       `com`
+      //     );
+      //     return;
+      //   case 3:
+      //     this.addLine(
+      //       `(${this.inputData[0]} console) > `,
+      //       `Enter your nickName`,
+      //       `com`
+      //     );
+      //     return;
+      // }
     },
     printPW(data) {
       // 비밀번호 ***로 표시
@@ -259,12 +284,10 @@ export default {
 
       let loginInfo = {
         access: this.inputData[0],
-        data: [
-          {
-            id: this.inputData[1],
-            pw: this.inputData[2],
-          },
-        ],
+        data: {
+          id: this.inputData[1],
+          pw: this.inputData[2],
+        },
       };
 
       if (loginInfo.data.id) {
@@ -281,14 +304,12 @@ export default {
 
       let signInfo = {
         access: this.inputData[0],
-        data: [
-          {
-            id: this.inputData[1],
-            pw: this.inputData[2],
-            nick: this.inputData[3],
-            phone: this.inputData[4],
-          },
-        ],
+        data: {
+          id: this.inputData[1],
+          pw: this.inputData[2],
+          nick: this.inputData[3],
+          phone: this.inputData[4],
+        },
       };
 
       // axios 통신
@@ -321,6 +342,7 @@ export default {
       // 한줄 추가
       this.consoleText.push(`Kanboo bash`);
       this.modeText.push(mode);
+      console.log(enter);
       this.enterText.push(enter);
       this.classData.push(classdata);
       this.inputText = "";
