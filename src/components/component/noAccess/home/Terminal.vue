@@ -4,7 +4,7 @@
       <div class="output-text" v-for="i in consoleText.length" :key="i">
         <span class="console-text">{{ consoleText[i - 1] }}</span
         ><span class="console-text">{{ modeText[i - 1] }}</span>
-        <span :class="classData[i - 1]" class="user-text">{{
+        <span :class="classData[i - 1]" class="user-text"> {{
           enterText[i - 1]
         }}</span>
       </div>
@@ -43,8 +43,6 @@ export default {
       inputText: "",
       signHelp: signHelp,
       signReg: "",
-      stringReg: /^[a-z0-9]{6,20}$/,
-      phoneReg: /(?:\d{3}|\d{4})-\d{4}$/,
     };
   },
   watch: {
@@ -165,11 +163,12 @@ export default {
           this.form(data, "nickName");
           this.inputData.push(data);
           this.addLine(`(sign console) > `, `${signHelp[4]}`, `text-color-red`);
+          this.inputType = "text";
           return;
         case 5:
           // 동의 확인 입력, 폰 입력 안내문
-          this.form(data, "confirm");
-          if ("Y" !== data && "y" !== data) {
+          this.form(data, "phoneChk");
+          if (!("Y" !== data || "y" !== data)) {
             this.addLine(
               `(sign console) > `,
               `${signHelp[4]}`,
@@ -177,8 +176,8 @@ export default {
             );
             return;
           }
-          this.inputData.push(data);
-          this.addLine(`(sign console) > `, `${signHelp[5]}`, `com`);
+            this.inputData.push(data);
+            this.addLine(`(sign console) > `, `${signHelp[5]}`, `com`);
           return;
         case 6:
           // 저나번호 입력
@@ -347,7 +346,6 @@ export default {
       }
 
       this.baseMode();
-      return this.enter();
     },
 
     findUserInfo() {
@@ -378,19 +376,22 @@ export default {
       document.getElementById("inputBox").scrollIntoView();
     },
     regex() {
+      let stringReg = /^[a-z0-9]{1,20}$/;
+      let phoneReg = /(?:\d{3}|\d{4})-\d{4}$/;
+
       if (
         this.inputData.length > 0 &&
         (this.inputData[0] === "sign" || this.inputData[0] === "login")
       ) {
         switch (this.inputData.length) {
           case 5:
-            this.stringReg = false;
+            stringReg = false;
             break;
           case 6:
-            this.signReg = !this.phoneReg.test(this.inputText);
+            this.signReg = !phoneReg.test(this.inputText);
             break;
           default:
-            this.signReg = !this.stringReg.test(this.inputText);
+            this.signReg = !stringReg.test(this.inputText);
             break;
         }
       }
