@@ -231,6 +231,9 @@ export default {
       }
     },
     findMode(data, originalData) {
+
+      if(this.inputData == '') return;
+
       switch (this.inputData.length) {
         case 0:
           this.rootText = `Kanboo bash(find console) > `;
