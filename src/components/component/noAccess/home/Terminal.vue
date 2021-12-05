@@ -4,19 +4,22 @@
       <div class="output-text" v-for="i in consoleText.length" :key="i">
         <span class="console-text">{{ consoleText[i - 1] }}</span
         ><span class="console-text">{{ modeText[i - 1] }}</span>
-        <span :class="classData[i - 1]" class="user-text"> {{
-          enterText[i - 1]
-        }}</span>
+        <span :class="classData[i - 1]" class="user-text">
+          {{ enterText[i - 1] }}</span
+        >
       </div>
       <div class="userInput">
         {{ rootText }}
-        <span v-if="inputData.length == 6" class="phone-preformat"> +82) </span>
+        <span style="color: white" v-if="inputData.length == 6"> +82) </span>
         <input
           :type="inputType"
           @keyup.enter="enter"
           id="inputBox"
           v-model="inputText"
-          :class="{ 'text-color-red': signReg }"
+          :class="{
+            'text-color-red': signReg,
+            'text-color-orange': reservedWord,
+          }"
         />
       </div>
     </div>
@@ -29,20 +32,20 @@ export default {
   name: "Terminal",
   updated() {
     this.focus();
-    console.log(this.inputData);
   },
   data() {
     return {
       rootText: `Kanboo bash(base console) > `,
       modeText: [`(base console) > `],
       consoleText: [`Kanboo bash`],
-      enterText: [`Choose Menu`],
+      enterText: [`Choose Menu 1.login 2.sign 3.find 4.clear 5.cd.. 6.cd home`],
       classData: [`com`],
       inputType: "text",
       inputData: [],
       inputText: "",
-      signHelp: signHelp,
-      signReg: "",
+      signHelp: signHelp.en,
+      signReg: false,
+      reservedWord: false,
     };
   },
   watch: {
@@ -52,6 +55,40 @@ export default {
     enter() {
       let data = this.inputText.toLowerCase();
       let originalData = this.inputText;
+      if (data === "clear") {
+        this.consoleText = [`Kanboo bash`];
+        this.classData = [`com`];
+        switch (this.inputData[0]) {
+          case "login":
+            this.modeText = [`(${this.inputData[0]} console) > `];
+            if (this.inputData.length == 1) {
+              this.enterText = [`Enter your ID`];
+            } else if (this.inputData.length == 2) {
+              this.enterText = [`Enter your Password`];
+            }
+            this.addLine(`(${this.inputData[0]} console) > `, data, "");
+            return;
+          case "sign":
+            this.modeText = [`(${this.inputData[0]} console) > `];
+            this.enterText = [`${this.signHelp[this.inputData.length - 1]}`];
+            if (this.inputData.length == 5)
+              this.classData[0] = [`text-color-red`];
+            this.addLine(`(${this.inputData[0]} console) > `, data, "");
+            return;
+          case "find":
+            this.modeText = [`(${this.inputData[0]} console) > `];
+            this.enterText = [`Enter your Token`];
+            this.addLine(`(${this.inputData[0]} console) > `, data, "");
+            return;
+          default:
+            this.modeText = [`(base console) > `];
+            this.enterText = [
+              `Choose Menu 1.login 2.sign 3.find 4.clear 5.cd.. 6.cd home`,
+            ];
+            this.nothing(originalData);
+            return;
+        }
+      }
 
       if (this.inputData.length > 0) {
         switch (data) {
@@ -62,6 +99,7 @@ export default {
           case "cd home":
             this.addLine(`(${this.inputData[0]} console) > `, data, "");
             this.baseMode();
+            break;
         }
 
         switch (this.inputData[0]) {
@@ -100,6 +138,8 @@ export default {
     },
 
     loginMode(data, originalData) {
+      if (this.inputText == "") return;
+
       switch (this.inputData.length) {
         case 0:
           this.rootText = `Kanboo bash(login console) > `;
@@ -124,26 +164,25 @@ export default {
     },
 
     signMode(data, originalData) {
-      let signHelp = this.signHelp.en;
       if (this.signReg) return;
       switch (this.inputData.length) {
         case 0: // 아이디 입력 안내문
           this.rootText = `Kanboo bash(sign console) > `;
           this.inputData.push(data);
           this.addLine(`(base console) > `, originalData, "");
-          this.addLine(`(sign console) > `, `${signHelp[0]}`, `com`);
+          this.addLine(`(sign console) > `, `${this.signHelp[0]}`, `com`);
           return;
         case 1:
           // 아이디 입력, 비밀번호 입력 안내문
           this.form(data, "ID");
-          this.addLine(`(sign console) > `, `${signHelp[1]}`, `com`);
+          this.addLine(`(sign console) > `, `${this.signHelp[1]}`, `com`);
           this.inputData.push(data);
           this.inputType = "password";
           return;
         case 2:
           // 비번 입력 , 비밀번호 체크 안내문
           this.form(data, "PW");
-          this.addLine(`(sign console) > `, `${signHelp[2]}`, `com`);
+          this.addLine(`(sign console) > `, `${this.signHelp[2]}`, `com`);
           this.inputData.push(data);
           this.inputType = "password";
           return;
@@ -151,10 +190,10 @@ export default {
           // 비번 확인 입력, 닉네임 입력 안내문
           this.form(data, "PWCheck");
           if (this.inputData[2] !== data) {
-            this.addLine(`(sign console) > `, `${signHelp[2]}`, `com`);
+            this.addLine(`(sign console) > `, `${this.signHelp[2]}`, `com`);
             return;
           }
-          this.addLine(`(sign console) > `, `${signHelp[3]}`, `com`);
+          this.addLine(`(sign console) > `, `${this.signHelp[3]}`, `com`);
           this.inputData.push(data);
           this.inputType = "text";
           return;
@@ -162,22 +201,26 @@ export default {
           // 닉네임 입력, 동의 확인
           this.form(data, "nickName");
           this.inputData.push(data);
-          this.addLine(`(sign console) > `, `${signHelp[4]}`, `text-color-red`);
+          this.addLine(
+            `(sign console) > `,
+            `${this.signHelp[4]}`,
+            `text-color-red`
+          );
           this.inputType = "text";
           return;
         case 5:
           // 동의 확인 입력, 폰 입력 안내문
           this.form(data, "phoneChk");
-          if (!("Y" !== data || "y" !== data)) {
+          if ("Y" !== data && "y" !== data) {
             this.addLine(
               `(sign console) > `,
-              `${signHelp[4]}`,
+              `${this.signHelp[4]}`,
               `text-color-red`
             );
             return;
           }
-            this.inputData.push(data);
-            this.addLine(`(sign console) > `, `${signHelp[5]}`, `com`);
+          this.inputData.push(data);
+          this.addLine(`(sign console) > `, `${this.signHelp[5]}`, `com`);
           return;
         case 6:
           // 저나번호 입력
@@ -231,7 +274,6 @@ export default {
       // 뒤로 가기
       this.addLine(`(${this.inputData[0]} console) > `, data, "");
       this.inputData.pop();
-      let signHelp = this.signHelp.en;
       if (this.inputData.length === 0) {
         return this.baseMode();
       } else {
@@ -262,32 +304,25 @@ export default {
             }
             return;
           case "sign":
-            // ID PW pwChk Nick Confirm Phone
-            // 위치(길이)
-            // ID(1) --> baseMode
-            // PW(2) --> ID PW , 비번 다시 쳐야 하니까 비번 안내문 출력
-            // pwCHk(3) --> nick쳐야하는단계인데, 비번 처음으로 다시가도록
-            // confrim(4) --> nick까지 쳤으니까 다시 닉네임 치도록
-            // phone(5) --> nick 다시 치도록
             switch (this.inputData.length) {
               case 1: // 아이디 안내문 출력
-                this.addLine(`(sign console) > `, `${signHelp[0]}`, `com`);
+                this.addLine(`(sign console) > `, `${this.signHelp[0]}`, `com`);
                 this.inputType = "password";
                 return;
               case 2: // 비번 안내문
-                this.addLine(`(sign console) > `, `${signHelp[1]}`, `com`);
+                this.addLine(`(sign console) > `, `${this.signHelp[1]}`, `com`);
                 this.inputType = "password";
                 return;
               case 3: // 비번 확인 안내문
-                this.addLine(`(sign console) > `, `${signHelp[1]}`, `com`);
+                this.addLine(`(sign console) > `, `${this.signHelp[1]}`, `com`);
                 this.inputType = "text";
                 this.inputData.pop();
                 return;
               case 4: // nick 안내문
-                this.addLine(`(sign console) > `, `${signHelp[3]}`, `com`);
+                this.addLine(`(sign console) > `, `${this.signHelp[3]}`, `com`);
                 return;
               case 5: // nick 안내문
-                this.addLine(`(sign console) > `, `${signHelp[3]}`, `com`);
+                this.addLine(`(sign console) > `, `${this.signHelp[3]}`, `com`);
                 return;
             }
             return;
@@ -376,13 +411,19 @@ export default {
       document.getElementById("inputBox").scrollIntoView();
     },
     regex() {
-      let stringReg = /^[a-z0-9]{1,20}$/;
+      let stringReg = /^[a-z0-9]{6,20}$/;
       let phoneReg = /(?:\d{3}|\d{4})-\d{4}$/;
+      let words = [
+        "login",
+        "sign",
+        "find",
+        "clear",
+        "cd..",
+        "cd ..",
+        "cd home",
+      ];
 
-      if (
-        this.inputData.length > 0 &&
-        (this.inputData[0] === "sign" || this.inputData[0] === "login")
-      ) {
+      if (this.inputData.length > 0 && this.inputData[0] === "sign") {
         switch (this.inputData.length) {
           case 5:
             stringReg = false;
@@ -393,6 +434,22 @@ export default {
           default:
             this.signReg = !stringReg.test(this.inputText);
             break;
+        }
+      }
+
+      let target = this.inputText.toLowerCase();
+
+      for (let word of words) {
+        if (word === target) {
+          this.inputType = "text";
+          this.reservedWord = true;
+          console.log(true)
+          break;
+        } else {
+          this.reservedWord = false;
+          if (this.inputData.length === 2 || this.inputData.length === 3) {
+            this.inputType = "password";
+          }
         }
       }
     },
@@ -424,20 +481,12 @@ export default {
   padding: 20px;
 }
 
-.phone-preformat {
-  color: darkorange;
-}
-
 input {
-  width: fit-content;
+  width: 78%;
   outline: none;
   border: none;
   color: #fff;
   background: #16161a;
-}
-
-.text-color-red {
-  color: red !important;
 }
 
 .user-text {
@@ -450,5 +499,12 @@ input {
 
 .com {
   color: #00ab26;
+}
+
+.text-color-red {
+  color: red;
+}
+.text-color-orange {
+  color: darkorange;
 }
 </style>
