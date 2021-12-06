@@ -27,9 +27,17 @@
 </template>
 
 <script>
+import {mapMutations , mapState} from 'vuex';
 import signHelp from "@/assets/signHelp.js";
 export default {
   name: "Terminal",
+  computed:{
+    ...mapState({
+      loginInfo: state => state.sign.loginInfo,
+      signInfo: state => state.sign.signInfo,
+      findInfo: state => state.sign.signInfo,
+    }),
+  },
   updated() {
     this.focus();
   },
@@ -52,6 +60,11 @@ export default {
     inputText: "regex",
   },
   methods: {
+    ...mapMutations({
+      login:'sign/login',
+      sign:'sign/sign',
+      find:'sign/find'
+    }),
     enter() {
       let data = this.inputText.toLowerCase();
       let originalData = this.inputText;
@@ -343,7 +356,6 @@ export default {
     loginAccess() {
       this.addLine(`(login console) > `, `Loading...`, "com");
       // axios 통신 ㄱㄱ
-
       let loginInfo = {
         access: this.inputData[0],
         data: {
@@ -354,6 +366,7 @@ export default {
 
       if (loginInfo.data.id) {
         this.addLine(`(login console) > `, `success`, `com`);
+        this.login(loginInfo);
       } else {
         this.addLine(`(login console) > `, `fail`, `com`);
         this.addLine(`(base console) > `, `Choose Menu`, `com`);
@@ -373,11 +386,10 @@ export default {
           phone: this.inputData[6],
         },
       };
-
       // axios 통신
-
       if (signInfo.data.id) {
         this.addLine(`(sign console) > `, `success`, `com`);
+        this.sign(signInfo);
       } else {
         this.addLine(`(sign console) > `, `fail`, `com`);
         this.addLine(`(base console) > `, `Choose Menu`, `com`);
@@ -395,8 +407,7 @@ export default {
           },
         ],
       };
-      console.log(findInfo);
-      // 아이디 , 비번 찾는 로직
+      this.find(findInfo);
       this.addLine(`(find console) > `, `니 아이디는 폰으로 보냄 `, "com");
       this.baseMode();
     },
@@ -485,7 +496,7 @@ export default {
 }
 
 input {
-  width: 78%;
+  width: 70%;
   outline: none;
   border: none;
   color: #fff;
