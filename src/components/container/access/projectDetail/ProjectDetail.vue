@@ -1,18 +1,21 @@
 <template>
   <div class="projectDetail-container">
-    <Notice />
-    <Chat />
+    <!-- <Notice /> -->
+    <!-- <Chat /> -->
+    projectDetail
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import Notice from "@/components/popup/Notice.vue";
-import Chat from "@/components/popup/Chat.vue";
+
+// import Notice from "@/components/popup/Notice.vue";
+// import Chat from "@/components/popup/Chat.vue";
 
 export default {
   components: {
-    Notice,
-    Chat,
+    // Notice,
+    // Chat,
   },
 };
 </script>
