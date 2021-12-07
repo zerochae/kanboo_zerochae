@@ -3,13 +3,13 @@
     <!-- <button class="callModal" @click="모달눌렀니 = true">
       Create Project 버튼
     </button> -->
-    <div class="createProject-bg-container">
-      <div class="createProject-white-container">
+    <div class="bg-container">
+      <div class="white-container">
         <h1 class="createProject-title">Create Project</h1>
         <div class="createProject-content">
-          <input class="createProject-input" type="text" placeholder="Name" />
-          <input class="createProject-input" type="text" placeholder="Start" />
-          <input class="createProject-input" type="text" placeholder="End" />
+          <input class="create-input" type="text" placeholder="Name" />
+          <input class="create-input" type="text" placeholder="Start" />
+          <input class="create-input" type="text" placeholder="End" />
         </div>
         <button @click="모달눌렀니 = false" class="createProject-btn">
           Create Project
@@ -29,13 +29,14 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .callModal {
   font-size: 50px;
   background: cornflowerblue;
 }
 
-.createProject-bg-container {
+.bg-container {
+  z-index: 1;
   width: 100%;
   height: calc(100% - 70px);
   background: rgba(0, 0, 0, 0.36);
@@ -47,7 +48,8 @@ export default {
   align-items: center;
 }
 
-.createProject-white-container {
+.white-container {
+  z-index: 2;
   width: 30vw;
   border-radius: 15px;
   background: #2C2F3B;
@@ -66,7 +68,7 @@ export default {
   margin-bottom: 35px;
 }
 
-.createProject-input{
+.create-input{
   background: #414556;
   border: none;
   outline: none;

@@ -9452,6 +9452,11 @@
   "resolved" "https://registry.npmjs.org/vm-browserify/-/vm-browserify-1.1.2.tgz"
   "version" "1.1.2"
 
+"vue-cal@^4.2.0":
+  "integrity" "sha512-oJPuIwluNzsu34o2PB8v80iwEt8BkAjLxHVnMtFopvoqQKwwKS/EKPj+TpoeFRILy2iUscDf86WukuGEm163ag=="
+  "resolved" "https://registry.npmjs.org/vue-cal/-/vue-cal-4.2.0.tgz"
+  "version" "4.2.0"
+
 "vue-class-component@^7.1.0":
   "integrity" "sha512-+eaQXVrAm/LldalI272PpDe3+i4mPis0ORiMYxF6Ae4hyuCh15W8Idet7wPUEs4N4YptgFHGys4UrgNQOMyO6w=="
   "resolved" "https://registry.npmjs.org/vue-class-component/-/vue-class-component-7.2.6.tgz"

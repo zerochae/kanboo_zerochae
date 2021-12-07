@@ -3,12 +3,13 @@
     <div class="kanban-card-container">
       <div v-if="item.loading" class="">
         <RefreshIcon class="icons spin" viewBox="0 0 24 24" />
-        <span>Processing...</span>
       </div>
       <div class="card-space">
         <div class="kanban-card">
           <p>
-            <span class="kanban-badge" :style="{background : item.badgeColor}"> {{item.badgeText}} </span> 
+            <span class="kanban-badge" :style="{ background: item.badgeColor }">
+              {{ item.badgeText }}
+            </span>
             <DotsHorizontalIcon
               @click="showMenu(columnIndex, cardIndex)"
               class="icons"
@@ -90,6 +91,7 @@ export default {
       showCardMenu: "kanban/showCardMenu",
       delete: "kanban/delete",
       setDays: "kanban/setDays",
+      D_Days: "kanban/D_Days",
       // find: "kanban/find",
     }),
     showMenu(i, j) {
@@ -106,15 +108,14 @@ export default {
       var startDay = moment(start, "YYYY-MM-DD HH:mm:ss");
       var endDay = moment(end, "YYYY-MM-DD HH:mm:ss");
 
-
       var date = "";
 
       var registrationTime = startDay.from(today).split(" ");
 
-      console.log(registrationTime);
-      
-      const b = registrationTime[0]
-      date += (b === 'a') || (b === 'an') ? 1 : registrationTime[0]
+      date +=
+        registrationTime[0] === "a" || registrationTime[0] === "an"
+          ? 1
+          : registrationTime[0];
 
       switch (registrationTime[1]) {
         case "few":
@@ -144,6 +145,8 @@ export default {
       let day = startDay.from(endDay).split(" ");
       if (day[0] === "in") {
         d_day += `+${day[1]}`;
+      } else if (day[0] === "a" || day[0] === "an") {
+        d_day += "-1";
       } else {
         d_day += `-${day[0]}`;
       }
@@ -159,9 +162,7 @@ export default {
 };
 </script>
 
-<style>
-
-
+<style scoped>
 .card-space {
   background-color: #414556;
   margin: 15px;
@@ -189,7 +190,13 @@ export default {
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
-.card-in-menu .icons:hover {
+.icons {
+  margin-top: 5px;
+  width: 20px;
+  vertical-align: sub;
+}
+
+.icons:hover {
   color: #ff8906;
 }
 
@@ -224,7 +231,7 @@ export default {
   margin-bottom: 10px;
 }
 
-.kanban-timeZone{
-  margin-top : 10px;
+.kanban-timeZone {
+  margin-top: 10px;
 }
 </style>

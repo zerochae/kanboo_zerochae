@@ -1,3 +1,5 @@
+const moment = require('moment')
+
 const kanban = {
   namespaced: true,
   state: {
@@ -17,16 +19,15 @@ const kanban = {
           },
           cards: [
             {
-              content: "test",
+              content: "프로젝트 리스트 퍼블리싱",
               id: "0-1",
-              loading: false,
               startDate:"2021-12-07 15:00:10",
-              endDate: "2021-12-4 15:30:30",
+              endDate: "2021-12-08 15:30:30",
               day: "",
               badgeText: "front-end",
               badgeColor: "#4caf50",
               showCardInMenu: false,
-              user_name: "zerochae",
+              user_name: "태희",
             },
           ],
         },
@@ -40,14 +41,13 @@ const kanban = {
           },
           cards: [
             {
-              content: "test",
+              content: "간트차트 퍼블리싱",
               id: "1-1",
-              loading: false,
               startDate:"2021-12-06 15:30:30",
               endDate: "2021-12-13 15:30:30",
               day: "",
-              badgeText: "front-end",
-              badgeColor: "#4caf50",
+              badgeText: "implement",
+              badgeColor: "#4caffd",
               showCardInMenu: false,
               user_name: "zerochae",
             },
@@ -63,16 +63,15 @@ const kanban = {
           },
           cards: [
             {
-              content: "test",
+              content: "컴파일러 기능 구현",
               id: "2-1",
-              loading: false,
               startDate:"2021-12-05 15:30:30",
               endDate: "2021-12-14 15:30:30",
               badgeText: "back-end",
               badgeColor: "#FFC107",
               day: "",
               showCardInMenu: false,
-              user_name: "zerochae",
+              user_name: "kade",
             },
           ],
         },
@@ -86,16 +85,15 @@ const kanban = {
           },
           cards: [
             {
-              content: "test",
+              content: "스케줄러 퍼블리싱",
               id: "3-1",
-              loading: false,
               startDate:"2021-12-04 15:30:30",
               endDate: "2021-12-12 15:30:30",
               badgeText: "complete",
               badgeColor: "#FF9800",
               day: "",
               showCardInMenu: false,
-              user_name: "zerochae",
+              user_name: "주원",
             },
           ],
         },
@@ -109,16 +107,15 @@ const kanban = {
           },
           cards: [
             {
-              content: "test",
+              content: "프로젝트 세팅 퍼블리싱",
               id: "4-1",
-              loading: false,
               startDate:"2021-12-07 14:35:43",
               endDate: "2021-12-12 15:30:30",
               badgeText: "Emergency",
               badgeColor: "#F44336",
               day: "",
               showCardInMenu: false,
-              user_name: "zerochae",
+              user_name: "창균",
             },
           ],
         },
@@ -160,8 +157,69 @@ const kanban = {
       let j = payload[2];
 
       state.kanban.columns[i].cards[j].day = day;
+    },
 
-    }
+    add(state,payload){
+
+      var id = state.kanban.columns[payload[0]].cards.length;
+      var today = moment().format("YYYY-MM-DD HH:mm:ss");
+      var startDay = moment(today, "YYYY-MM-DD HH:mm:ss");
+      var endDay = moment(payload[1], "YYYY-MM-DD HH:mm:ss");
+
+      var date = "";
+
+      var registrationTime = startDay.from(today).split(" ");
+
+      date +=
+        registrationTime[0] === "a" || registrationTime[0] === "an"
+          ? 1
+          : registrationTime[0];
+
+      switch (registrationTime[1]) {
+        case "few":
+          date = "now";
+          break;
+        case "minute":
+        case "minutes":
+          date += "분 전";
+          break;
+        case "hour":
+        case "hours":
+          date += "시간 전";
+          break;
+        case "day":
+        case "days":
+          date += "일 전";
+          break;
+        case "month":
+        case "months":
+          date += "달 전";
+          break;
+      }
+
+      let d_day = "D";
+
+      let day = startDay.from(endDay).split(" ");
+      if (day[0] === "in") {
+        d_day += `+${day[1]}`;
+      } else if (day[0] === "a" || day[0] === "an") {
+        d_day += "-1";
+      } else {
+        d_day += `-${day[0]}`;
+      }
+
+      state.kanban.columns[payload[0]].cards.push({
+              content: "프로젝트 리스트 퍼블리싱",
+              id: `${payload[0]}-${id}`,
+              startDate: today,
+              endDate: "2021-12-09",
+              day: `${date} (${d_day})`,
+              badgeText: "front-end",
+              badgeColor: "#4caf50",
+              showCardInMenu: false,
+              user_name: "태희",
+            },);
+    },
     // updateCard(state, payload) {},
   },
   actions: {},

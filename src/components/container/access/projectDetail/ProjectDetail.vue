@@ -2,7 +2,6 @@
   <div class="projectDetail-container">
     <!-- <Notice /> -->
     <!-- <Chat /> -->
-    projectDetail
     <router-view></router-view>
   </div>
 </template>
