@@ -1,1 +1,5 @@
 node_modules
+.vscode
+gridTest.html
+.DS_Store
+.gitignore
