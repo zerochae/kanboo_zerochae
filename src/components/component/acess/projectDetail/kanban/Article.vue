@@ -97,12 +97,9 @@ export default {
       this.kanban = kanban;
     },
     onCardDrop(columnId, dropResult) {
-
       // check if element where ADDED or REMOVED in current column
       if (dropResult.removedIndex !== null || dropResult.addedIndex !== null) {
-          
         this.dropCheck.push(columnId);
-
         console.log(columnId);
         const kanban = Object.assign({}, this.kanban);
         const column = kanban.columns.filter((p) => p.id === columnId)[0];
@@ -131,7 +128,6 @@ export default {
     },
     addCard(i) {
       var id = this.kanban.columns.length;
-
       this.kanban.columns[i].cards.push({
         type: "draggable",
         id: `${i}-${id}`,
@@ -189,57 +185,8 @@ export default {
   margin-bottom: 8px;
 }
 
-.card-space {
-  background-color: #414556;
-  margin: 10px;
-  border-radius: 20px;
-  padding: 8px;
-  position: relative;
-}
-
-.kanban-card {
-  padding: 4px;
-  width: 100%;
-  height: 100%;
-  display: inline;
-  position: relative;
-}
-.card-in-menu {
-  cursor: pointer;
-  position: absolute;
-  background-color: white;
-  color: black;
-  padding: 5px;
-  border-radius: 10px;
-  right: 0;
-  top: 50%;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-}
-
-.card-in-menu .icons:hover {
-  color: #ff8906;
-}
-
-.showMenu-enter-from {
-  opacity: 0;
-}
-.showMenu-enter-active {
-  transition: all 1s;
-}
-.showMenu-enter-to {
-  opacity: 1;
-}
-
-.showMenu-leave-from {
-  opacity: 1;
-}
-.showMenu-leave-active {
-  transition: all 1s;
-}
-.showMenu-leave-to {
-  opacity: 0;
-}
 .icons {
+  margin-top: 5px;
   width: 20px;
   vertical-align: sub;
 }

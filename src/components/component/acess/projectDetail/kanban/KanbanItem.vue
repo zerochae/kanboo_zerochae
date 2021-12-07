@@ -8,13 +8,14 @@
       <div class="card-space">
         <div class="kanban-card">
           <p>
-            {{ emoji }} {{ item.user_name }}
+            <span class="kanban-badge" :style="{background : item.badgeColor}"> {{item.badgeText}} </span> 
             <DotsHorizontalIcon
               @click="showMenu(columnIndex, cardIndex)"
               class="icons"
               style="float: right"
             />
           </p>
+          <p>{{ item.user_name }}</p>
         </div>
         <transition name="showMenu">
           <div
@@ -35,6 +36,13 @@
           </div>
         </transition>
         <p>{{ item.content }}</p>
+        <p class="kanban-timeZone">
+          <ClockIcon
+            @load="D_days(item.startDate, item.endDate, columnIndex, cardIndex)"
+            class="icons"
+          />
+          {{ item.day }}
+        </p>
       </div>
     </div>
   </Draggable>
@@ -42,13 +50,14 @@
 
 <script>
 import { mapMutations, mapState } from "vuex";
-import { getRandomEmoji } from "@/utils/helpers";
 import { Draggable } from "vue3-smooth-dnd";
+import moment from "moment";
 import {
   DotsHorizontalIcon,
   TrashIcon,
   PencilIcon,
   RefreshIcon,
+  ClockIcon,
 } from "@heroicons/vue/outline";
 export default {
   name: "KanbanItem",
@@ -58,9 +67,8 @@ export default {
     TrashIcon,
     PencilIcon,
     RefreshIcon,
+    ClockIcon,
   },
-
-
   computed: {
     ...mapState({
       nowOpen: (state) => state.kanban.nowOpen,
@@ -68,7 +76,8 @@ export default {
   },
   data() {
     return {
-      emoji: getRandomEmoji(),
+      day: "",
+      time: "",
     };
   },
   props: {
@@ -79,13 +88,143 @@ export default {
   methods: {
     ...mapMutations({
       showCardMenu: "kanban/showCardMenu",
-      // sign: "kanban/sign",
+      delete: "kanban/delete",
+      setDays: "kanban/setDays",
       // find: "kanban/find",
     }),
-  showMenu(i,j){
-    var indexArr = [i,j];
-    this.showCardMenu(indexArr);
-  }
+    showMenu(i, j) {
+      var indexArr = [i, j];
+      this.showCardMenu(indexArr);
+    },
+    deleteCard(i, j) {
+      // var target = document.querySelector(`#cardMenu${i}${j}`)
+      var indexArr = [i, j];
+      this.delete(indexArr);
+    },
+    D_days(start, end, i, j) {
+      var today = moment().format("YYYY-MM-DD HH:mm:ss");
+      var startDay = moment(start, "YYYY-MM-DD HH:mm:ss");
+      var endDay = moment(end, "YYYY-MM-DD HH:mm:ss");
+
+
+      var date = "";
+
+      var registrationTime = startDay.from(today).split(" ");
+
+      console.log(registrationTime);
+      
+      const b = registrationTime[0]
+      date += (b === 'a') || (b === 'an') ? 1 : registrationTime[0]
+
+      switch (registrationTime[1]) {
+        case "few":
+          date = "now";
+          break;
+        case "minute":
+        case "minutes":
+          date += "분 전";
+          break;
+        case "hour":
+        case "hours":
+          date += "시간 전";
+          break;
+        case "day":
+        case "days":
+          date += "일 전";
+          break;
+        case "month":
+        case "months":
+          date += "달 전";
+          break;
+      }
+      this.time = date;
+
+      let d_day = "D";
+
+      let day = startDay.from(endDay).split(" ");
+      if (day[0] === "in") {
+        d_day += `+${day[1]}`;
+      } else {
+        d_day += `-${day[0]}`;
+      }
+      this.day = d_day;
+
+      var payload = [];
+      payload.push(`${this.time} (${this.day})`);
+      payload.push(i);
+      payload.push(j);
+      this.setDays(payload);
+    },
   },
 };
 </script>
+
+<style>
+
+
+.card-space {
+  background-color: #414556;
+  margin: 15px;
+  border-radius: 20px;
+  padding: 15px;
+  position: relative;
+}
+
+.kanban-card {
+  padding: 4px;
+  width: 100%;
+  height: 100%;
+  display: inline;
+  position: relative;
+}
+.card-in-menu {
+  cursor: pointer;
+  position: absolute;
+  background-color: white;
+  color: black;
+  padding: 5px;
+  border-radius: 10px;
+  right: 0;
+  top: 35%;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.card-in-menu .icons:hover {
+  color: #ff8906;
+}
+
+.showMenu-enter-from {
+  opacity: 0;
+}
+.showMenu-enter-active {
+  transition: all 1s;
+}
+.showMenu-enter-to {
+  opacity: 1;
+}
+
+.showMenu-leave-from {
+  opacity: 1;
+}
+.showMenu-leave-active {
+  transition: all 0.5s;
+}
+.showMenu-leave-to {
+  opacity: 0;
+}
+.kanban-badge {
+  display: inline-block;
+  font-weight: 700;
+  border-radius: 0.25rem;
+  padding: 0.15625rem 0.5rem;
+  transform: translateY(-18%);
+  font-size: 0.625rem;
+  color: white;
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+
+.kanban-timeZone{
+  margin-top : 10px;
+}
+</style>
