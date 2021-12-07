@@ -20,6 +20,7 @@ import Board from './components/container/access/projectDetail/ProjectBoard.vue'
 import Gantt from './components/container/access/projectDetail/GanttChart.vue'
 import GitAndIssue from './components/container/access/projectDetail/GitAndIssue.vue'
 import Setting from './components/container/access/projectDetail/Setting.vue'
+import Kanban from './components/component/acess/projectDetail/kanban/Article.vue'
 
 
 
@@ -93,6 +94,10 @@ const routes = [
       {
         path: "setting",
         component: Setting
+      },
+      {
+        path: "kanban",
+        component: Kanban
       },
     ]
   }
