@@ -4,14 +4,23 @@
       <div class="color-picker-wrap">
         <input
           class="create-input"
-          :v-model="inputBadge"
+          v-model="inputBadge"
           type="text"
           placeholder="badge"
+          id="inputBadge"
         />
         <div class="vertical-wrap">
-          <label for="color" :style="{ background: pickColor }"></label>
+          <label
+            id="pickColor"
+            for="color"
+            :style="{ background: pickColor }"
+          ></label>
           <input id="color" type="color" v-model="pickColor" />
-          <CalendarIcon class="icons calendar" @click="showCal = true" />
+          <CalendarIcon
+            id="inputDate"
+            class="icons calendar"
+            @click="showCal = true"
+          />
         </div>
         <vue-cal
           locale="ko"
@@ -24,21 +33,18 @@
           :disable-views="['years,week,days']"
           style="width: 210px; height: 230px"
           @cell-click="pickDate($event)"
-          @click="clickedMap"
           @dblclick="showCal = false"
           v-if="showCal"
         >
         </vue-cal>
-        <div id="alert-cal" class="vue-cal-alert">
-          <EmojiSadIcon class="icons" />
-        </div>
       </div>
 
       <textarea
         class="create-input input-content"
-        :v-model="inputContent"
+        v-model="inputContent"
         type="text"
         placeholder="content"
+        id="inputContent"
       />
       <div class="button-zone">
         <PencilAltIcon
@@ -71,14 +77,10 @@
             group-name="col-items"
             :shouldAcceptDrop="(e, payload) => e.groupName === 'col-items'"
             :get-child-payload="getCardPayload(column.id)"
-            :drop-placeholder="{
-              className: `drop-placeholder`,
-              animationDuration: '200',
-              showOnTop: true,
-            }"
-            :dragClass="`cardGhostDrag`"
-            :dropClass="`cardGhostDrop`"
+            :drag-class="cardGhostDrag"
+            :drop-class="cardGhostDrop"
             @drop="(e) => onCardDrop(column.id, e)"
+            :drop-placeholder="dropPlaceholder"
           >
             <KanbanItem
               v-for="(item, cardIndex) in column.cards"
@@ -106,7 +108,6 @@ import {
   PencilAltIcon,
   ReplyIcon,
   CalendarIcon,
-  EmojiSadIcon,
 } from "@heroicons/vue/outline";
 import { Container, Draggable } from "vue3-smooth-dnd";
 import { applyDrag } from "@/utils/helpers";
@@ -121,12 +122,10 @@ export default {
     ReplyIcon,
     CalendarIcon,
     VueCal,
-    EmojiSadIcon,
   },
   data() {
     return {
       openInput: -1,
-      input: "test",
       kanban: this.$store.state.kanban.kanban,
       showAddForm: false,
       showCal: false,
@@ -142,42 +141,26 @@ export default {
       add: "kanban/add",
     }),
     pickDate(data) {
-      var today = moment().format("YYYY-MM-DD HH:mm:ss");
-      var selectDate = moment(data.format("YYYY-MM-DD"))
-        .add("21", "hours")
-        .add("12", "minutes");
+      let today = moment().format("YYYY-MM-DD HH:mm");
+      let todayWithOutTime = moment().format("YYYY-MM-DD");
+      let selectDate = moment(data.format("YYYY-MM-DD"));
 
-      if (selectDate.from(today).split(" ")[0] !== "in") {
-        this.clickedMap();
+      if (
+        selectDate.from(today).split(" ")[0] !== "in" &&
+        selectDate._i !== todayWithOutTime
+      ) {
+        let target = document.querySelector(
+          ".vuecal__cell--selected .vuecal__cell-content"
+        );
+        target.style.background = "red";
+        setTimeout(() => {
+          target.style.background = "none";
+        }, 1000);
+        clearTimeout();
         return;
       } else {
-        console.log(selectDate);
-
-        console.log(selectDate.from(today));
-
-        this.inputDate = data;
+        this.inputDate = selectDate._i;
       }
-    },
-    absPos(e) {
-      this.x =
-        e.clientX +
-        (document.documentElement.scrollLeft
-          ? document.documentElement.scrollLeft
-          : document.body.scrollLeft);
-      this.y =
-        e.clientY +
-        (document.documentElement.scrollTop
-          ? document.documentElement.scrollTop
-          : document.body.scrollTop);
-      return this;
-    },
-    clickedMap(e) {
-      var target = document.querySelector("#alert-cal");
-
-      var pos = this.absPos(e);
-
-      target.style.left = pos.x - 20;
-      target.style.top =  pos.y - 40;
     },
     showInput(i) {
       this.input = "";
@@ -198,8 +181,6 @@ export default {
     },
     onCardDrop(columnId, dropResult) {
       if (dropResult.removedIndex !== null || dropResult.addedIndex !== null) {
-        this.dropCheck.push(columnId);
-        console.log(columnId);
         const kanban = Object.assign({}, this.kanban);
         const column = kanban.columns.filter((p) => p.id === columnId)[0];
         const itemIndex = kanban.columns.indexOf(column);
@@ -221,12 +202,42 @@ export default {
       this.showAddForm = true;
     },
     addCard(index) {
+      let inputData = [this.inputBadge, this.inputDate, this.inputContent];
+
+      let testBeforePush = ["inputBadge", "inputDate", "inputContent"];
+
+      for (let index in testBeforePush) {
+        if (inputData[index] === "") {
+          var target = document.getElementById(testBeforePush[index]);
+          if (index === 1) {
+            target.style.color = "red";
+          } else {
+            target.style.border = "1px solid red";
+          }
+
+          setTimeout(() => {
+            target.style.border = "none";
+          }, 1000);
+
+          clearTimeout();
+
+          return;
+        }
+      }
+
       let payload = [];
       payload.push(index);
-      payload.push("2021-12-08");
+      payload.push(this.inputBadge);
+      payload.push(this.pickColor);
+      payload.push(this.inputDate);
+      payload.push(this.inputContent);
+      payload.push(this.$store.state.sign.loginInfo.id);
 
       this.add(payload);
       this.showAddForm = false;
+      this.inputBadge = "";
+      this.inputDate = "";
+      this.inputContent = "";
     },
   },
 };
@@ -292,14 +303,6 @@ export default {
   box-shadow: 0 5px 35px rgba(0, 0, 0, 0.3);
 }
 
-.vue-cal-alert {
-  position: relative;
-  left: 100%;
-  top: 20%;
-  display: flex;
-  z-index: 10000;
-}
-
 .vuecal--date-picker {
   position: absolute;
   top: 20%;
@@ -329,10 +332,6 @@ export default {
   margin-bottom: 8px;
 }
 
-.drop-placeholder {
-  border: 2px dotted #ff8906;
-  border-radius: 50px;
-}
 .kanban-title {
   height: 40px;
   width: 270px;
@@ -345,7 +344,7 @@ export default {
 }
 .vertical-wrap {
   display: flex;
-  justify-content: space-between;
+  justify-content: right;
   align-items: center;
   width: 30%;
 }
@@ -420,17 +419,6 @@ export default {
   overflow-y: scroll;
 }
 
-.cardGhostDrag {
-  transform: rotate(5deg) scale(1.1);
-  transition: all 0.2s ease-in;
-  border-radius: 50px;
-  color: white;
-}
-.cardGhostDrop {
-  transition: all 5s ease-in;
-  transform: rotate(-20deg) scale(0.9);
-}
-
 .spin {
   animation: spin 3s linear infinite;
 }
@@ -448,5 +436,20 @@ export default {
   border-style: none;
   border-color: initial;
   border-image: initial; */
+}
+.dropPlaceholder {
+  border: 2px dotted #ff8906;
+  border-radius: 50px;
+}
+
+.cardGhostDrag {
+  transform: rotate(5deg) scale(1.1);
+  transition: all 0.2s ease-in;
+  border-radius: 50px;
+  color: white;
+}
+.cardGhostDrop {
+  transition: all 5s ease-in;
+  transform: rotate(-20deg) scale(0.9);
 }
 </style>

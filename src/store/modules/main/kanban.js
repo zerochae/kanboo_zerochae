@@ -161,14 +161,24 @@ const kanban = {
 
     add(state,payload){
 
-      var id = state.kanban.columns[payload[0]].cards.length;
-      var today = moment().format("YYYY-MM-DD HH:mm:ss");
-      var startDay = moment(today, "YYYY-MM-DD HH:mm:ss");
-      var endDay = moment(payload[1], "YYYY-MM-DD HH:mm:ss");
+      let index = payload[0];
+      let badge = payload[1];
+      let color = payload[2];
+      let endDay = moment(payload[3], "YYYY-MM-DD HH:mm:ss");
+      let content = payload[4];
+      let userId= payload[5];
 
-      var date = "";
+      if(userId === undefined){
+        userId = 'zerochae'
+      }
 
-      var registrationTime = startDay.from(today).split(" ");
+      let id = state.kanban.columns[index].cards.length;
+      let today = moment().format("YYYY-MM-DD HH:mm:ss");
+      let startDay = moment(today, "YYYY-MM-DD HH:mm:ss");
+
+      let date = "";
+
+      let registrationTime = startDay.from(today).split(" ");
 
       date +=
         registrationTime[0] === "a" || registrationTime[0] === "an"
@@ -209,15 +219,15 @@ const kanban = {
       }
 
       state.kanban.columns[payload[0]].cards.push({
-              content: "프로젝트 리스트 퍼블리싱",
+              content: content,
               id: `${payload[0]}-${id}`,
               startDate: today,
-              endDate: "2021-12-09",
+              endDate: endDay,
               day: `${date} (${d_day})`,
-              badgeText: "front-end",
-              badgeColor: "#4caf50",
+              badgeText: badge,
+              badgeColor: color,
               showCardInMenu: false,
-              user_name: "태희",
+              user_name: userId,
             },);
     },
     // updateCard(state, payload) {},
