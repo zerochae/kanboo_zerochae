@@ -24,11 +24,8 @@
             v-if="item.showCardInMenu == true"
             :id="`cardMenu${columnIndex}${cardIndex}`"
           >
-            <p>
-              <PencilIcon
-                @click="updateCard(columnIndex, cardIndex)"
-                class="icons"
-              />
+            <p @click="updateCard(columnIndex, cardIndex)">
+              <PencilIcon class="icons" />
               수정
             </p>
             <p @click="deleteCard(columnIndex, cardIndex)">
@@ -90,6 +87,7 @@ export default {
     ...mapMutations({
       showCardMenu: "kanban/showCardMenu",
       delete: "kanban/delete",
+      update: "kanban/update",
       setDays: "kanban/setDays",
       D_Days: "kanban/D_Days",
       // find: "kanban/find",
@@ -102,6 +100,10 @@ export default {
       // var target = document.querySelector(`#cardMenu${i}${j}`)
       var indexArr = [i, j];
       this.delete(indexArr);
+    },
+    updateCard(i, j) {
+      var indexArr = [i, j];
+      this.update(indexArr);
     },
     D_days(start, end, i, j) {
       var today = moment().format("YYYY-MM-DD HH:mm:ss");
@@ -162,7 +164,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .card-space {
   background-color: #414556;
   margin: 15px;
@@ -233,5 +235,21 @@ export default {
 
 .kanban-timeZone {
   margin-top: 10px;
+}
+
+.drop-placeholder {
+  border: 2px dotted #ff8906;
+  border-radius: 50px;
+}
+
+.cardGhostDrag {
+  transform: rotate(5deg) scale(1.1);
+  transition: all 0.2s ease-in;
+  border-radius: 50px;
+  color: white;
+}
+.cardGhostDrop {
+  transition: all 5s ease-in;
+  transform: rotate(-20deg) scale(0.9);
 }
 </style>

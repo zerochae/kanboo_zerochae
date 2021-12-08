@@ -19,7 +19,7 @@
           <CalendarIcon
             id="inputDate"
             class="icons calendar"
-            @click="showCal = true"
+            @click="showCalendar()"
           />
         </div>
         <vue-cal
@@ -51,7 +51,7 @@
           @click="addCard(addColumnIndex)"
           class="icons btn create-btn"
         />
-        <ReplyIcon @click="showAddForm = false" class="icons btn return-btn" />
+        <ReplyIcon @click="closeAddForm()" class="icons btn return-btn" />
       </div>
     </div>
   </div>
@@ -77,10 +77,14 @@
             group-name="col-items"
             :shouldAcceptDrop="(e, payload) => e.groupName === 'col-items'"
             :get-child-payload="getCardPayload(column.id)"
-            :drag-class="cardGhostDrag"
-            :drop-class="cardGhostDrop"
+            :drop-placeholder="{
+              className: `drop-placeholder`,
+              animationDuration: '300',
+              showOnTop: true,
+            }"
+            :dragClass="`cardGhostDrag`"
+            :dropClass="`cardGhostDrop`"
             @drop="(e) => onCardDrop(column.id, e)"
-            :drop-placeholder="dropPlaceholder"
           >
             <KanbanItem
               v-for="(item, cardIndex) in column.cards"
@@ -97,7 +101,7 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapMutations , mapState } from "vuex";
 import moment from "moment";
 import KanbanItem from "./KanbanItem.vue";
 import VueCal from "vue-cal";
@@ -123,12 +127,16 @@ export default {
     CalendarIcon,
     VueCal,
   },
+  computed: {
+    ...mapState({
+      showAddForm: state => state.kanban.showAddForm,
+      showCal: state => state.kanban.showCal,
+    }),
+  },
   data() {
     return {
       openInput: -1,
       kanban: this.$store.state.kanban.kanban,
-      showAddForm: false,
-      showCal: false,
       pickColor: "#4caf50",
       addColumnIndex: "",
       inputBadge: "",
@@ -139,11 +147,20 @@ export default {
   methods: {
     ...mapMutations({
       add: "kanban/add",
+      showAdd: "kanban/showAdd",
+      closeAdd: "kanban/closeAdd",
+      showCalendar: "kanban/showCalendar"
     }),
     pickDate(data) {
       let today = moment().format("YYYY-MM-DD HH:mm");
+      let nowTime = moment().format("HH:mm:ss");
+
       let todayWithOutTime = moment().format("YYYY-MM-DD");
-      let selectDate = moment(data.format("YYYY-MM-DD"));
+      let selectDate = moment(data.format("YYYY-MM-DD"))._i;
+
+      let temp = `${selectDate} ${nowTime}`;
+
+      selectDate = moment(temp, "YYYY-MM-DD HH:mm:ss");
 
       if (
         selectDate.from(today).split(" ")[0] !== "in" &&
@@ -159,16 +176,8 @@ export default {
         clearTimeout();
         return;
       } else {
-        this.inputDate = selectDate._i;
+        this.inputDate = selectDate;
       }
-    },
-    showInput(i) {
-      this.input = "";
-      if (-1 !== this.openInput) {
-        this.kanban.columns[this.openInput].showInput = false;
-      }
-      this.kanban.columns[i].showInput = true;
-      this.openInput = i;
     },
     getColumnHeightPx() {
       let container = document.getElementById("kanbanContainer");
@@ -197,32 +206,46 @@ export default {
         ];
       };
     },
+    closeAddForm() {
+      this.closeAdd();
+      this.inputDate = "";
+      this.inputContent = "";
+      this.inputBadge = "";
+    },
     beforeShowAddForm(index) {
       this.addColumnIndex = index;
-      this.showAddForm = true;
+      this.showAdd();
     },
     addCard(index) {
-      let inputData = [this.inputBadge, this.inputDate, this.inputContent];
+      let inputData = [this.inputBadge, this.inputContent];
 
-      let testBeforePush = ["inputBadge", "inputDate", "inputContent"];
+      let testBeforePush = ["inputBadge", "inputContent"];
 
       for (let index in testBeforePush) {
         if (inputData[index] === "") {
           var target = document.getElementById(testBeforePush[index]);
-          if (index === 1) {
-            target.style.color = "red";
-          } else {
-            target.style.border = "1px solid red";
-          }
-
+          target.style.boxShadow = "0px 0px 40px 40px #dd323e";
+          target.style.transition = "all 0.7s ease-in-out";
           setTimeout(() => {
-            target.style.border = "none";
+            target.style.boxShadow = "none";
           }, 1000);
-
           clearTimeout();
-
           return;
         }
+      }
+
+      if (this.inputDate === "") {
+        this.showCal = true;
+
+        let inputDate = document.querySelector("svg.icons.calendar");
+
+        inputDate.style.boxShadow = "0px 0px 40px 40px #dd323e";
+        inputDate.style.transition = "all 0.7s ease-in-out";
+        setTimeout(() => {
+          inputDate.style.boxShadow = "none";
+        }, 1000);
+        clearTimeout();
+        return;
       }
 
       let payload = [];
@@ -323,7 +346,6 @@ export default {
   padding: 5px;
   margin: 10px auto;
   min-width: 300px;
-  overflow-y: hidden;
 }
 
 .kanban-card-container {
@@ -417,6 +439,7 @@ export default {
   width: 270px;
   box-sizing: content-box;
   overflow-y: scroll;
+  max-height: 830px;
 }
 
 .spin {
@@ -451,5 +474,10 @@ export default {
 .cardGhostDrop {
   transition: all 5s ease-in;
   transform: rotate(-20deg) scale(0.9);
+}
+
+.kanban-input-err {
+  border: 1px solid #bd1e19;
+  color: red;
 }
 </style>
