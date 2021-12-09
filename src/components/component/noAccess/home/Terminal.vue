@@ -21,21 +21,23 @@
             'text-color-orange': reservedWord,
           }"
         />
+        <span v-if="idCheck"> ID already registered </span>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import {mapMutations , mapState} from 'vuex';
+import { mapMutations, mapState } from "vuex";
 import signHelp from "@/assets/signHelp.js";
+
 export default {
   name: "Terminal",
-  computed:{
+  computed: {
     ...mapState({
-      loginInfo: state => state.sign.loginInfo,
-      signInfo: state => state.sign.signInfo,
-      findInfo: state => state.sign.signInfo,
+      loginInfo: (state) => state.sign.loginInfo,
+      signInfo: (state) => state.sign.signInfo,
+      findInfo: (state) => state.sign.signInfo,
     }),
   },
   updated() {
@@ -52,19 +54,45 @@ export default {
       inputData: [],
       inputText: "",
       signHelp: signHelp.en,
+      idCheck: false,
       signReg: false,
       reservedWord: false,
     };
   },
   watch: {
-    inputText: "regex",
+    inputText: ["regex", "isExistId"],
   },
   methods: {
     ...mapMutations({
-      login:'sign/login',
-      sign:'sign/sign',
-      find:'sign/find'
+      login: "sign/login",
+      sign: "sign/sign",
+      find: "sign/find",
     }),
+    isExistId() {
+      let header = null;
+
+      if (
+        this.inputData.length === 1 &&
+        this.inputText.length > 5 &&
+        this.inputData[0] === "sign"
+      ) {
+        this.axios
+          .post(`http://localhost:8099/access/idCheck`, header, {
+            params: {
+              memId: `${this.inputText}`,
+            },
+          })
+          .then((data) => {
+            if (data.data) {
+              this.idCheck = true;
+              this.signReg = true;
+            } else {
+              this.idCheck = false;
+              this.signReg = false;
+            }
+          });
+      }
+    },
     enter() {
       let data = this.inputText.toLowerCase();
       let originalData = this.inputText;
@@ -123,7 +151,7 @@ export default {
             this.signMode(originalData);
             break;
           case "find":
-            this.findMode(originalData);
+            this.findMode(data, originalData);
             break;
         }
       } else {
@@ -244,22 +272,25 @@ export default {
       }
     },
     findMode(data, originalData) {
-
       if (this.inputText == "") return;
       switch (this.inputData.length) {
         case 0:
           this.rootText = `Kanboo bash(find console) > `;
           this.addLine(`(base console) > `, originalData, "");
-          this.inputData.push(data);
-          this.addLine(`(find console) > `, `Enter your Token`, `com`);
+          this.inputData.push(originalData);
+          this.addLine(`(find console) > `, `ID or PW ?`, `com`);
           return;
         case 1:
           this.addLine(`(find console) > `, data, "");
           this.inputData.push(data);
-          this.findUserInfo();
-          this.baseMode();
+          this.addLine(`(find console) > `, `Enter your Token`, `com`);
           return;
+        case 2:
+          this.addLine(`(find console) > `, originalData, "");
+          this.inputData.push(data);
+          this.findUserInfo();
       }
+      return;
     },
     form(data, position) {
       switch (position) {
@@ -341,6 +372,15 @@ export default {
                 return;
             }
             return;
+            case "find" :
+              switch (this.inputData.length){
+                case 1 : 
+                this.addLine(`(find console) > `, `ID or PW ?`, `com`);
+                return;
+                case 2 : 
+                this.addLine(`(find console) > `, `Enter your Token`, `com`);
+              }
+            return;
         }
       }
     },
@@ -354,22 +394,32 @@ export default {
     },
     loginAccess() {
       this.addLine(`(login console) > `, `Loading...`, "com");
-      // axios 통신 ㄱㄱ
+      let header = null;
       let loginInfo = {
-        access: this.inputData[0],
+        access: "login",
         data: {
-          id: this.inputData[1],
-          pw: this.inputData[2],
+          memId: this.inputData[1],
+          memPass: this.inputData[2],
         },
       };
-
-      if (loginInfo.data.id) {
-        this.addLine(`(login console) > `, `success`, `com`);
-        this.login(loginInfo);
-      } else {
-        this.addLine(`(login console) > `, `fail`, `com`);
-        this.addLine(`(base console) > `, `Choose Menu`, `com`);
-      }
+      this.axios
+        .post("http://localhost:8099/access/login", header, {
+          params: {
+            memId: this.inputData[1],
+            memPass: this.inputData[2],
+          },
+        })
+        .then((data) => {
+          console.log(data);
+          sessionStorage.setItem("token", data.data);
+          if (data.data !== 'fail') {
+            this.addLine(`(login console) > `, `success`, `com`);
+            this.login(loginInfo);
+          } else {
+            this.addLine(`(login console) > `, `Login access Fail`, `com`);
+            this.addLine(`(base console) > `, `Choose Menu`, `com`);
+          }
+        }).catch( (err)=>{console.log(err)} )
       this.baseMode();
     },
 
@@ -379,35 +429,83 @@ export default {
       let signInfo = {
         access: this.inputData[0],
         data: {
-          id: this.inputData[1],
-          pw: this.inputData[2],
-          nick: this.inputData[3],
-          phone: this.inputData[6],
+          memId: this.inputData[1],
+          memPass: this.inputData[2],
+          memNick: this.inputData[4],
+          memCelNum: this.inputData[6],
         },
       };
-      // axios 통신
-      if (signInfo.data.id) {
-        this.addLine(`(sign console) > `, `success`, `com`);
-        this.sign(signInfo);
-      } else {
-        this.addLine(`(sign console) > `, `fail`, `com`);
-        this.addLine(`(base console) > `, `Choose Menu`, `com`);
-      }
+
+      let header = null;
+
+      this.axios
+        .post("http://localhost:8099/access/sign", header, {
+          params: {
+            memId: signInfo.data.memId,
+            memPass: signInfo.data.memPass,
+            memNick: signInfo.data.memNick,
+            memCelNum: signInfo.data.memCelNum,
+          },
+        })
+        .then((token) => {
+          this.addLine(
+            `(sign console) > `,
+            `Your Token : ${token.data}`,
+            `com`
+          );
+          this.sign(signInfo);
+        })
+        .catch(() => {
+          this.addLine(`(sign console) > `, `Sign access Fail`, `com`);
+          this.addLine(`(base console) > `, `Choose Menu`, `com`);
+        });
 
       this.baseMode();
     },
 
     findUserInfo() {
-      let findInfo = {
-        access: this.inputData[0],
-        data: [
-          {
-            token: this.inputData[1],
-          },
-        ],
-      };
-      this.find(findInfo);
-      this.addLine(`(find console) > `, `니 아이디는 폰으로 보냄 `, "com");
+      let url, mode;
+      let header = null;
+      let params = { memToken: this.inputData[2] };
+
+      switch (this.inputData[1]) {
+        case "id":
+          url = "findId";
+          mode = "id";
+          break;
+        case "pw":
+          url = "resetPw";
+          mode = "pw";
+          break;
+      }
+
+      this.axios
+        .post(`http://localhost:8099/access/${url}`, header, { params })
+        .then((data) => {
+          switch (mode) {
+            case "id":
+              this.addLine(
+                `(find console) > `,
+                `Your ID : ${data.data} `,
+                "com"
+              );
+              break;
+            case "pw":
+              this.addLine(
+                `(find console) > `,
+                `A temporary password has been sent via SMS.`,
+                "com"
+              );
+              break;
+          }
+        })
+        .catch(() => {
+          this.addLine(
+            `(find console) > `,
+            `You entered an Invalid Token`,
+            "com"
+          );
+        });
       this.baseMode();
     },
 
@@ -456,11 +554,14 @@ export default {
         if (word === target) {
           this.inputType = "text";
           this.reservedWord = true;
-          console.log(true)
+          console.log(true);
           break;
         } else {
           this.reservedWord = false;
-          if (this.inputData.length === 2 || this.inputData.length === 3) {
+          if (
+            (this.inputData.length === 2 || this.inputData.length === 3) &&
+            this.inputData[0] !== "find"
+          ) {
             this.inputType = "password";
           }
         }
@@ -495,7 +596,7 @@ export default {
 }
 
 input {
-  width: 70%;
+  width: 33%;
   outline: none;
   border: none;
   color: #fff;
