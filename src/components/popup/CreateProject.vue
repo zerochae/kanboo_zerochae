@@ -1,8 +1,5 @@
 <template>
   <div>
-    <!-- <button class="callModal" @click="모달눌렀니 = true">
-      Create Project 버튼
-    </button> -->
     <div class="bg-container">
       <div class="white-container">
         <h1 class="createProject-title">Create Project</h1>
@@ -12,21 +9,23 @@
             class="create-input"
             type="text"
             placeholder="Name"
-            @click="showCalendar == true"
+            id="name"
           />
           <input
             class="create-input"
+            placeholder="Start"
             id="start"
             type="text"
-            placeholder="Start"
-            :value="pickDays[0]"
+            :value="inputStartDay"
+            @click="showCal"
           />
           <input
             class="create-input"
             id="end"
             type="text"
             placeholder="End"
-            :value="pickDays[1]"
+            :value="inputEndDay"
+            @click="showCal"
           />
           <vue-cal
             locale="ko"
@@ -39,10 +38,12 @@
             :disable-views="['years,week,days']"
             style="width: 210px; height: 230px"
             @cell-click="pickDate($event)"
+            @dblclick="showCalendar = false"
+            v-if="showCalendar"
           >
           </vue-cal>
         </div>
-        <button @click="showCreateForm = false" class="createProject-btn">
+        <button @click="createProject()" class="createProject-btn">
           Create Project
         </button>
       </div>
@@ -95,37 +96,67 @@ export default {
         clearTimeout();
         return;
       } else {
-        let flag = true;
-        let target = selectDate._i;
-
-        for (let i = 0; i < this.pickDays.length; i++) {
-          if (this.pickDays[i] === target) {
-            this.pickDays.splice(i, 1);
-            flag = false;
-            console.log("같음");
-          }
-        }
-
-        if (flag) {
-          if (this.pickDays.length < 2) {
-            console.log("추가")
-            this.pickDays.push(target);
-          }
-          
-          if (this.pickDays.length === 2) {
-            let day1 = moment(this.pickDays[0]);
-            let day2 = moment(this.pickDays[1]);
-              console.log(day1.from(day2))
-            let temp = this.pickDays[1];
-            this.pickDays[1] = this.pickDays[2];
-            this.pickDays[2] = temp;
-          }
-
+        if (this.thisDay === "start") {
+          this.inputStartDay = selectDate._i;
+        } else {
+          this.inputEndDay = selectDate._i;
         }
       }
     },
-    showCal() {
+    showCal(e) {
+      this.thisDay = e.target.id;
       this.showCalendar = true;
+    },
+    createProject() {
+      if (this.inputName === "") {
+        let target = document.getElementById("name");
+        target.style.boxShadow = "0px 0px 40px 40px #dd323e";
+        target.style.transition = "all 0.7s ease-in-out";
+        setTimeout(() => {
+          target.style.boxShadow = "none";
+        }, 1000);
+        clearTimeout();
+        return;
+      }
+
+      let start = moment(this.inputStartDay, "YYYY-MM-DD");
+      let end = moment(this.inputEndDay, "YYYY-MM-DD");
+
+      if (
+        start.from(end).split(" ")[0] === "in" ||
+        this.inputStartDay === "" ||
+        this.inputEndDay === ""
+      ) {
+        let target1 = document.getElementById("start");
+        let target2 = document.getElementById("end");
+        target1.style.boxShadow = "0px 0px 40px 40px #dd323e";
+        target1.style.transition = "all 0.7s ease-in-out";
+        target2.style.boxShadow = "0px 0px 40px 40px #dd323e";
+        target2.style.transition = "all 0.7s ease-in-out";
+        setTimeout(() => {
+          target1.style.boxShadow = "none";
+          target2.style.boxShadow = "none";
+        }, 1000);
+        clearTimeout();
+        return;
+      }
+
+      let header = null;
+
+      let params = {
+        prjctNm: this.inputName,
+        prjctStartDate: this.inputStartDay,
+        prjctEndDate: this.inputEndDay,
+      };
+
+      this.axios
+        .post("http://localhost:8099/", header, { params })
+        .then((result) => {
+          console.log(result);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     },
   },
 };

@@ -223,7 +223,7 @@ export default {
 
       for (let index in testBeforePush) {
         if (inputData[index] === "") {
-          var target = document.getElementById(testBeforePush[index]);
+          let target = document.getElementById(testBeforePush[index]);
           target.style.boxShadow = "0px 0px 40px 40px #dd323e";
           target.style.transition = "all 0.7s ease-in-out";
           setTimeout(() => {

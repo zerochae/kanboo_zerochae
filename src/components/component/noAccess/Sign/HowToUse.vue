@@ -127,7 +127,7 @@ How many people can interpret this in English? There doesn't seem to be!`,
 };
 </script>
 
-<style>
+<style scoped>
 .how-to-use-container {
   display: flex;
   justify-content: center;
@@ -143,8 +143,6 @@ How many people can interpret this in English? There doesn't seem to be!`,
 .how-to-use-container,
 .how-to-use-container:before,
 .how-to-use-container::after {
-  /* margin: 0; */
-  /* padding: 0; */
   box-sizing: border-box;
 }
 
