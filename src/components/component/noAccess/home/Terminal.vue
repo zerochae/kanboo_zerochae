@@ -1,12 +1,13 @@
 <template>
   <div class="terminal-container" @click="focus()">
     <div class="console">
-      <div class="output-text" v-for="i in consoleText.length" :key="i">
-        <span class="console-text">{{ consoleText[i - 1] }}</span
-        ><span class="console-text">{{ modeText[i - 1] }}</span>
-        <span :class="classData[i - 1]" class="user-text">
+      <div class="output-text" v-for="(i, j) in consoleText.length" :key="j">
+        <span class="console-text">{{ consoleText[i - 1] }}</span>
+        <span class="console-text">{{ modeText[i - 1] }}</span>
+        <span :class="classData[i - 1]" :id="`text-${i - 1}`" class="user-text">
           {{ enterText[i - 1] }}</span
         >
+        <span class="copy" v-if="printToken && j === tokenPrintIndex" @click="copyToken"> [copy]</span>
       </div>
       <div class="userInput">
         {{ rootText }}
@@ -41,8 +42,15 @@ export default {
     }),
   },
   updated() {
-    this.focus();
+    // this.copyToken();
+
+    if(this.printToken){
+       this.tokenPrintIndex = this.consoleText.length -1 ; 
+    }
+
   },
+  mounted() {},
+  components: {},
   data() {
     return {
       rootText: `Kanboo bash(base console) > `,
@@ -57,6 +65,9 @@ export default {
       idCheck: false,
       signReg: false,
       reservedWord: false,
+      printToken: false,
+      tokenText: "",
+      tokenPrintIndex: "",
     };
   },
   watch: {
@@ -136,11 +147,11 @@ export default {
           case "cd..":
           case "cd ..":
             this.goBack(originalData);
-            break;
+            return;
           case "cd home":
             this.addLine(`(${this.inputData[0]} console) > `, data, "");
             this.baseMode();
-            break;
+            return;
         }
 
         switch (this.inputData[0]) {
@@ -174,6 +185,7 @@ export default {
     baseMode() {
       this.inputType = "text";
       this.rootText = `Kanboo bash(base console) > `;
+      this.printToken = false;
       this.signReg = false;
       this.inputData.length = 0;
     },
@@ -367,19 +379,20 @@ export default {
               case 4: // nick 안내문
                 this.addLine(`(sign console) > `, `${this.signHelp[3]}`, `com`);
                 return;
-              case 5: // nick 안내문
-                this.addLine(`(sign console) > `, `${this.signHelp[3]}`, `com`);
+              case 5: // 동의 안내문
+                this.addLine(`(sign console) > `, `${this.signHelp[4]}`, `com`);
                 return;
             }
             return;
-            case "find" :
-              switch (this.inputData.length){
-                case 1 : 
+          case "find":
+            switch (this.inputData.length) {
+              case 1:
                 this.addLine(`(find console) > `, `ID or PW ?`, `com`);
                 return;
-                case 2 : 
+              case 2:
                 this.addLine(`(find console) > `, `Enter your Token`, `com`);
-              }
+                return;
+            }
             return;
         }
       }
@@ -412,14 +425,19 @@ export default {
         .then((data) => {
           console.log(data);
           sessionStorage.setItem("token", data.data);
-          if (data.data !== 'fail') {
+          if (data.data !== "fail") {
             this.addLine(`(login console) > `, `success`, `com`);
             this.login(loginInfo);
           } else {
             this.addLine(`(login console) > `, `Login access Fail`, `com`);
             this.addLine(`(base console) > `, `Choose Menu`, `com`);
           }
-        }).catch( (err)=>{console.log(err)} )
+        })
+        .catch((err) => {
+          console.log(err);
+          this.addLine(`(login console) > `, `Login access Fail`, `com`);
+          this.addLine(`(base console) > `, `Choose Menu`, `com`);
+        });
       this.baseMode();
     },
 
@@ -436,6 +454,7 @@ export default {
         },
       };
 
+
       let header = null;
 
       this.axios
@@ -448,18 +467,21 @@ export default {
           },
         })
         .then((token) => {
+          this.printToken = true;
           this.addLine(
             `(sign console) > `,
             `Your Token : ${token.data}`,
-            `com`
+            `com token`
           );
+          this.tokenText = token.data;
           this.sign(signInfo);
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error(err);
           this.addLine(`(sign console) > `, `Sign access Fail`, `com`);
           this.addLine(`(base console) > `, `Choose Menu`, `com`);
         });
-
+      console.log(this.tokenText)
       this.baseMode();
     },
 
@@ -491,11 +513,19 @@ export default {
               );
               break;
             case "pw":
-              this.addLine(
-                `(find console) > `,
-                `A temporary password has been sent via SMS.`,
-                "com"
-              );
+              if (data.data == true) {
+                this.addLine(
+                  `(find console) > `,
+                  `A temporary password has been sent via SMS.`,
+                  "com"
+                );
+              } else {
+                this.addLine(
+                  `(find console) > `,
+                  `You entered an Invalid Token`,
+                  "com"
+                );
+              }
               break;
           }
         })
@@ -516,6 +546,13 @@ export default {
       this.enterText.push(enter);
       this.classData.push(classdata);
       this.inputText = "";
+    },
+    copyToken() {
+      if (this.printToken) {
+        console.log(this.tokenText)
+          navigator.clipboard.writeText(this.tokenText)
+        }
+        this.printToken = false;
     },
     focus() {
       document.getElementById("inputBox").focus();
@@ -554,7 +591,6 @@ export default {
         if (word === target) {
           this.inputType = "text";
           this.reservedWord = true;
-          console.log(true);
           break;
         } else {
           this.reservedWord = false;
@@ -620,5 +656,16 @@ input {
 }
 .text-color-orange {
   color: darkorange;
+}
+
+.icons {
+  margin-top: 5px;
+  width: 20px;
+  vertical-align: sub;
+  display: inline-block;
+}
+
+.copy {
+  cursor: pointer;
 }
 </style>
