@@ -423,10 +423,10 @@ export default {
           },
         })
         .then((data) => {
-          console.log(data);
           sessionStorage.setItem("token", data.data);
           if (data.data !== "fail") {
             this.addLine(`(login console) > `, `success`, `com`);
+            this.goToPages()
             this.login(loginInfo);
           } else {
             this.addLine(`(login console) > `, `Login access Fail`, `com`);
@@ -440,7 +440,9 @@ export default {
         });
       this.baseMode();
     },
-
+     goToPages () {
+      this.$router.push('/projects')
+    },
     signAccess() {
       this.addLine(`(sign console) > `, `Loading`, "com");
 

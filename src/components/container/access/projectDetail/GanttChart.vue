@@ -1,6 +1,6 @@
 <template>
   <div class="ganttChart-container">
-    <Chart class="chart" />
+    <Chart />
     <div class="gantt-footer">
       <Detail class="detail" />
       <Write class="write" />
@@ -29,26 +29,7 @@ export default {
 
 .gantt-footer {
   display: flex;
+  color: white;
 }
 
-.chart {
-  height: calc(60vh - 70px);
-  background: red;
-  margin: 20px;
-}
-
-.detail {
-  margin: 20px;
-  height: calc(30vh - 40px);
-  width: 50vw;
-  padding: 20px;
-  background: #2C2F3B;
-}
-.write {
-  margin: 20px;
-  height: calc(30vh - 40px);
-  width: 50vw;
-  padding: 20px;
-  background: #2C2F3B;
-}
 </style>

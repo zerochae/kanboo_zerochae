@@ -1,8 +1,8 @@
 <template>
   <div class="write-container">
     <div class="write-header">
-      <span>일감 상세</span>
-      <span><button>작성</button></span>
+      <span class="write-title">일감 등록</span>
+      <span><button @click="addTask()" class="write-btn btn">작성</button></span>
     </div>
     <hr class="write-line" />
     <table class="write-table">
@@ -33,38 +33,106 @@
         <th>설명</th>
       </tr>
       <tr>
-        <td colspan="4"><input type="text"></td>
+        <td colspan="4"><input type="text"/></td>
       </tr>
     </table>
   </div>
 </template>
 
 <script>
-export default {};
+
+import {mapMutations} from 'vuex'
+
+export default {
+  data(){
+    return{
+
+    }
+  },
+  methods:{
+    ...mapMutations({
+      add: "gantt/add"
+    }),
+    addTask(){
+
+      let payload = {
+          memId: "zerochae",
+          title: "task1",
+          content: "",
+          start: "07",
+          end: "20",
+          state: "",
+          priority: "",
+          color: "red",
+          progress: "50",
+        }
+
+        this.add(payload)
+
+    }
+  },
+};
 </script>
 
-<style>
+<style scoped>
+
+.write-container{
+  border-radius: 25px;
+  margin: 20px;
+  height: calc(30vh - 40px);
+  width: 50vw;
+  padding: 20px;
+  background: #2C2F3B;
+}
+
 .write-header {
   display: flex;
   justify-content: space-between;
   width: 50%;
 }
+
+.write-title{
+  font-size: 22px;
+}
+
 .write-line {
   width: 50%;
-  margin: 10px 0 10px 0;
+  margin: 0 0 6px 0;
 }
+
+.write-btn{
+  background: #FF8906;
+}
+
+.btn{
+  color: white;
+  margin: 0 0 10px 10px;
+  border-radius: 15px;
+  width: 50px;
+  padding: 2px;
+  -webkit-filter: drop-shadow(0px 15px 15px rgba(10, 10, 10, 0.8));
+}
+
 .write-table {
   border: none;
-  width: 100%;
+  width: 90%;
   text-align: left;
-  height: 70%;
+  height: 80%;
 }
 
 .write-table input{
-    width: 50px;
+    width: 110px;
     background: none;
     border: none;
     outline: none;
+    color: #fff;
+}
+
+.write-table th,td{
+width: 30px;
+}
+
+.write-des-text{
 }
 
 .write-item-progress{
